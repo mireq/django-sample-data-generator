@@ -38,7 +38,7 @@ Example
 		title = NameSample()
 		content = TextSample(text_type=TextSample.Paragraph)
 
-	register = BlogGenerator()
+	register = GeneratorRegister()
 	register.register(BlogGenerator(Blog, 1000))
 
 .. code:: bash
