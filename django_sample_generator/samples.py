@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import codecs
 import os
+import pickle
+import random
 import time
 from datetime import datetime, timedelta
+from itertools import chain
 
-import random
 from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils.crypto import get_random_string
 from django.utils.timezone import datetime as tz_datetime, utc
 
+from .constants import TEXT_START, SENTENCE_END, WORD_END, SPECIAL_TOKENS
+
 
 class Sample(object):
-	def __init__(self, count = 0):
+	def __init__(self, count=0):
 		self.count = count
 		self.num = 0
 
@@ -33,76 +36,30 @@ class Sample(object):
 
 
 class TextGenerator(object):
-	SAMOHLASKA = 0
-	SPOLUHLASKA = 1
+	def __init__(self, token_list, token_transitions):
+		self.token_list = token_list
+		self.token_transitions = token_transitions
+		self.token_list_search = {s: i for i, s in enumerate(self.token_list) if s in SPECIAL_TOKENS}
+		self.stop_tokens = set([self.token_list_search[w] for w in (SENTENCE_END + [WORD_END])])
+		self.token_transitions_idx = tuple(tuple(chain(*[[v[0]] * v[1] for v in val])) for val in self.token_transitions)
 
-	_instance = None
+	def __generate_word(self):
+		word = []
+		current_part = self.token_list_search[TEXT_START]
+		stop = self.token_list_search[WORD_END]
+		while current_part not in self.stop_tokens:
+			parts = self.token_transitions_idx[current_part]
+			current_part = parts[random.randrange(0, len(parts))]
+			if current_part != stop:
+				word.append(self.token_list[current_part])
+		return ''.join(word)
 
-	def __new__(cls, *args, **kwargs):
-		if not cls._instance:
-			cls._instance = super(TextGenerator, cls).__new__(cls, *args, **kwargs)
-		return cls._instance
-
-	def __init__(self):
-		self.spluhlasky = set(['b', 'c', 'c', 'd', 'ď', 'f', 'g', 'h', 'j', 'k', 'l', 'ľ', 'm', 'n', 'ň', 'p', 'q', 'r', 'ŕ', 's', 'š', 't', 'ť', 'v', 'w', 'x', 'z', 'ž'])
-		self.samohlasky = set(['a', 'á', 'e', 'é', 'i', 'í', 'o', 'ó', 'ô', 'u', 'ú', 'y', 'ý'])
-		self.database = {}
-		self.sum_words = None
-		self.build_database()
-
-	def build_database(self):
-		fp = codecs.open(os.path.join(os.path.dirname(__file__), 'db.txt'), encoding="utf-8", mode='r')
-		data = fp.read().split(' ')
-		database = {}
-		for word in data:
-			hyph = word.split('-')
-			if len(hyph) in database:
-				subdatabase = database[len(hyph)]
-			else:
-				subdatabase = {'count': 0, 'subcount': [0, 0], 'data': {}}
-				database[len(hyph)] = subdatabase
-			subdatabase['count'] += 1
-			data = subdatabase['data']
-			for part in hyph:
-				if not part in data:
-					data[part] = 0
-				data[part] += 1
-				if len(part) > 0 and part[0] in self.samohlasky:
-					subdatabase['subcount'][self.SAMOHLASKA] += 1
-				else:
-					subdatabase['subcount'][self.SPOLUHLASKA] += 1
-		def sum_database_item():
-			count_sum = [0, 0]
-			def add_item(item):
-				if len(item[0]) > 0 and item[0][0] in self.samohlasky:
-					count_sum[self.SAMOHLASKA] += item[1]
-					return (item[0], item[1] + count_sum[self.SAMOHLASKA])
-				else:
-					count_sum[self.SPOLUHLASKA] += item[1]
-					return (item[0], item[1] + count_sum[self.SPOLUHLASKA])
-			return add_item
-		for length in database:
-			data = database[length]['data']
-			data = list(data.iteritems())
-			sorted_data = sorted(data, key=lambda d: -d[1])
-			sum_fun = sum_database_item()
-			sorted_data = [sum_fun(i) for i in sorted_data]
-			separated_data = [None, None]
-			separated_data[self.SAMOHLASKA] = [i for i in sorted_data if len(i[0]) > 0 and i[0][0] in self.samohlasky]
-			separated_data[self.SPOLUHLASKA] = [i for i in sorted_data if not(len(i[0]) > 0 and i[0][0]) in self.samohlasky]
-			database[length]['data'] = separated_data
-		self.database = database
-
-	def get_word(self, uppercase=False, min_length=1):
-		word = u''
-		length = self.get_word_length(min_length)
-		chartype = None
-		for _ in range(length):
-			word += self.get_random_word_part(self.database[length], chartype)
-			if len(word) > 0 and word[-1] in self.samohlasky:
-				chartype = self.SPOLUHLASKA
-			else:
-				chartype = self.SAMOHLASKA
+	def get_word(self, uppercase=False, include_stops=False, min_length=1):
+		word = ''
+		while len(word) < min_length:
+			word = self.__generate_word()
+		if not include_stops and word[-1] in SPECIAL_TOKENS:
+			word = word[:-1]
 		if uppercase:
 			if len(word) > 1:
 				word = word[0].upper() + word[1:]
@@ -110,63 +67,30 @@ class TextGenerator(object):
 				word = word.upper()
 		return word
 
-	def get_sentence(self, length=None):
-		sentence = []
-		if length is None:
-			length = int(random.expovariate(.25) + random.randint(2, 8))
-		old_word = ''
-		for i in range(length):
-			upper = True if i == 0 else False
-			word = self.get_word(upper)
-			while word == old_word or (len(word) == 1 and len(old_word) == 1):
-				word = self.get_word(upper)
-			sentence.append(word)
-			old_word = word
-		return u' '.join(sentence)
+	def get_sentence(self):
+		words = []
+		word = ''
+		while word[-1:] not in set(SENTENCE_END):
+			word = self.get_word(uppercase=len(words) == 0, include_stops=True)
+			words.append(word)
+		return ' '.join(words)
 
 	def get_paragraph(self, length=None):
 		paragraph = []
 		if length is None:
 			length = int(random.expovariate(.25) + random.randint(5, 10))
-		for _ in range(length):
-			paragraph.append(self.get_sentence() + '.')
-		return u' '.join(paragraph)
+		return ' '.join(self.get_sentence() for _ in range(length))
 
-	def get_text(self, length=5):
-		return u"\n".join([self.get_paragraph() for _ in range(length)])
+	def get_text(self, length=None):
+		paragraphs = []
+		if length is None:
+			length = int(random.expovariate(.25) + random.randint(5, 10))
+		return ' '.join(self.get_paragraph() for _ in range(length))
 
-	def get_random_word_part(self, data, chartype=None):
-		if chartype is None:
-			rand = random.randint(0, data['subcount'][self.SAMOHLASKA] + data['subcount'][self.SPOLUHLASKA] - 1)
-			if rand < data['subcount'][self.SAMOHLASKA]:
-				chartype = self.SAMOHLASKA
-			else:
-				chartype = self.SPOLUHLASKA
-		if data['subcount'][chartype] == 0:
-			if chartype == self.SAMOHLASKA:
-				chartype = self.SPOLUHLASKA
-			else:
-				chartype = self.SAMOHLASKA
-		rand = random.randint(0, data['subcount'][chartype] - 1)
-		strings = data['data'][chartype]
-		for part in strings:
-			if part[1] >= rand:
-				return part[0]
-
-	def get_word_length(self, min_length):
-		if self.sum_words is None:
-			self.sum_words = 0
-			for length in self.database:
-				self.sum_words += self.database[length]['count']
-		rand = random.randint(0, self.sum_words - 1)
-		count = 0
-		for length in self.database:
-			count += self.database[length]['count']
-			if count >= rand:
-				if length < min_length:
-					return min_length
-				else:
-					return length
+	@staticmethod
+	def from_file(filename):
+		token_list, token_transitions = pickle.load(open(filename, 'rb'))
+		return TextGenerator(token_list, token_transitions)
 
 
 class NumberSample(Sample):
@@ -221,18 +145,17 @@ class TextSample(Sample):
 		self.text_type = text_type
 		self.max_length = max_length # výstup nikdy nepresiahne túto hodnotu
 		self.uppercase_word = False # prvý znak slova veľkými
-		self.sentence_length = None #  počet slov vo vete
 		self.paragraph_length = None # počet viet v odstavci
 		self.text_length = None # počet odstavcov v texte
-		self.generator = TextGenerator()
+		self.generator = TextGenerator.from_file(os.path.join(os.path.dirname(__file__), 'text_db'))
 
 	def get_sample(self):
 		if self.text_type == self.Word:
 			data = self.generator.get_word(self.uppercase_word)
 		if self.text_type == self.Name:
-			data = self.generator.get_word(self.uppercase_word, 2)
+			data = self.generator.get_word(self.uppercase_word, min_length=2)
 		elif self.text_type == self.Sentence:
-			data = self.generator.get_sentence(self.sentence_length)
+			data = self.generator.get_sentence()
 		elif self.text_type == self.Paragraph:
 			data = self.generator.get_paragraph(self.paragraph_length)
 		elif self.text_type == self.Text:
@@ -312,7 +235,7 @@ class EmailSample(Sample):
 		super(EmailSample, self).__init__()
 		self.num = 0
 		self.emails = set()
-		self.text = TextSample(text_type = TextSample.Word)
+		self.text = TextSample(text_type=TextSample.Word)
 
 	def get_sample(self):
 		self.num += 1
@@ -351,7 +274,7 @@ class PhoneNumberSample(Sample):
 class URLSample(Sample):
 	def __init__(self):
 		super(URLSample, self).__init__()
-		self.text = TextSample(text_type = TextSample.Word)
+		self.text = TextSample(text_type=TextSample.Word)
 
 	def get_sample(self):
 		self.num += 1
