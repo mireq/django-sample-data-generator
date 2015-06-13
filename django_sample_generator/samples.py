@@ -85,7 +85,7 @@ class TextGenerator(object):
 		paragraphs = []
 		if length is None:
 			length = int(random.expovariate(.25) + random.randint(5, 10))
-		return ' '.join(self.get_paragraph() for _ in range(length))
+		return '\n'.join(self.get_paragraph() for _ in range(length))
 
 	@staticmethod
 	def from_file(filename):
