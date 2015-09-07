@@ -17,9 +17,11 @@ from .constants import TEXT_START, SENTENCE_END, WORD_END, SPECIAL_TOKENS
 
 
 class Sample(object):
-	def __init__(self, count=0):
+	def __init__(self, count=0, unique=False):
 		self.count = count
 		self.num = 0
+		self.unique = unique
+		self.generated_values = set()
 
 	def __iter__(self):
 		return self
@@ -30,9 +32,19 @@ class Sample(object):
 	def next(self):
 		if self.num < self.count:
 			self.num += 1
-			return self.get_sample()
+			if self.unique:
+				for sample in self.__generate_sample():
+					if not sample in self.generated_values:
+						self.generated_values.add(sample)
+						return sample
+			else:
+				return self.get_sample()
 		else:
 			raise StopIteration()
+
+	def __generate_sample(self):
+		while True:
+			yield self.get_sample()
 
 
 class TextGenerator(object):
@@ -94,8 +106,8 @@ class TextGenerator(object):
 
 
 class NumberSample(Sample):
-	def __init__(self, random_data=True, min_value=0, max_value=100):
-		super(NumberSample, self).__init__()
+	def __init__(self, random_data=True, min_value=0, max_value=100, **kwargs):
+		super(NumberSample, self).__init__(**kwargs)
 		self.random = random_data
 		self.min_value = min_value
 		self.max_value = max_value
@@ -114,8 +126,8 @@ class NumberSample(Sample):
 
 
 class DateSample(Sample):
-	def __init__(self, min_date=datetime.now().date() - timedelta(365), max_date=datetime.now().date()):
-		super(DateSample, self).__init__()
+	def __init__(self, min_date=datetime.now().date() - timedelta(365), max_date=datetime.now().date(), **kwargs):
+		super(DateSample, self).__init__(**kwargs)
 		self.min_date = time.mktime(min_date.timetuple())
 		self.max_date = time.mktime(max_date.timetuple())
 
@@ -124,8 +136,8 @@ class DateSample(Sample):
 
 
 class DateTimeSample(Sample):
-	def __init__(self, min_date=datetime.now() - timedelta(365), max_date=datetime.now()):
-		super(DateTimeSample, self).__init__()
+	def __init__(self, min_date=datetime.now() - timedelta(365), max_date=datetime.now(), **kwargs):
+		super(DateTimeSample, self).__init__(**kwargs)
 		self.min_date = time.mktime(min_date.timetuple())
 		self.max_date = time.mktime(max_date.timetuple())
 
@@ -140,8 +152,8 @@ class TextSample(Sample):
 	Paragraph = 3
 	Text = 4
 
-	def __init__(self, text_type, max_length=None):
-		super(TextSample, self).__init__()
+	def __init__(self, text_type, max_length=None, **kwargs):
+		super(TextSample, self).__init__(**kwargs)
 		self.text_type = text_type
 		self.max_length = max_length # výstup nikdy nepresiahne túto hodnotu
 		self.uppercase_word = False # prvý znak slova veľkými
@@ -166,38 +178,38 @@ class TextSample(Sample):
 
 
 class WordSample(TextSample):
-	def __init__(self, uppercase_word=False, max_length=None):
-		super(WordSample, self).__init__(TextSample.Word, max_length)
+	def __init__(self, uppercase_word=False, max_length=None, **kwargs):
+		super(WordSample, self).__init__(TextSample.Word, max_length, **kwargs)
 		self.uppercase_word = uppercase_word
 
 
 class NameSample(TextSample):
-	def __init__(self, uppercase_word=True, max_length=None):
-		super(NameSample, self).__init__(TextSample.Name, max_length)
+	def __init__(self, uppercase_word=True, max_length=None, **kwargs):
+		super(NameSample, self).__init__(TextSample.Name, max_length, **kwargs)
 		self.uppercase_word = uppercase_word
 
 
 class SentenceSample(TextSample):
-	def __init__(self, sentence_length=None, max_length=None):
-		super(SentenceSample, self).__init__(TextSample.Sentence, max_length)
+	def __init__(self, sentence_length=None, max_length=None, **kwargs):
+		super(SentenceSample, self).__init__(TextSample.Sentence, max_length, **kwargs)
 		self.sentence_length = sentence_length
 
 
 class ParagraphSample(TextSample):
-	def __init__(self, paragraph_length=None, max_length=None):
-		super(ParagraphSample, self).__init__(TextSample.Paragraph, max_length)
+	def __init__(self, paragraph_length=None, max_length=None, **kwargs):
+		super(ParagraphSample, self).__init__(TextSample.Paragraph, max_length, **kwargs)
 		self.paragraph_length = paragraph_length
 
 
 class LongTextSample(TextSample):
-	def __init__(self, text_length=None, max_length=None):
-		super(LongTextSample, self).__init__(TextSample.Text, max_length)
+	def __init__(self, text_length=None, max_length=None, **kwargs):
+		super(LongTextSample, self).__init__(TextSample.Text, max_length, **kwargs)
 		self.text_length = text_length
 
 
 class RelationSample(Sample):
-	def __init__(self, queryset, fetch_all=False, only_pk=False, random_data=True):
-		super(RelationSample, self).__init__()
+	def __init__(self, queryset, fetch_all=False, only_pk=False, random_data=True, **kwargs):
+		super(RelationSample, self).__init__(**kwargs)
 		self.only_pk = only_pk
 		self.random_data = random_data
 		self.fetch_all = fetch_all
@@ -231,8 +243,8 @@ class RelationSample(Sample):
 
 
 class EmailSample(Sample):
-	def __init__(self):
-		super(EmailSample, self).__init__()
+	def __init__(self, **kwargs):
+		super(EmailSample, self).__init__(**kwargs)
 		self.num = 0
 		self.emails = set()
 		self.text = TextSample(text_type=TextSample.Word)
@@ -248,8 +260,8 @@ class EmailSample(Sample):
 
 
 class RandomItemSample(Sample):
-	def __init__(self, items):
-		super(RandomItemSample, self).__init__()
+	def __init__(self, items, **kwargs):
+		super(RandomItemSample, self).__init__(**kwargs)
 		self.items = list(items)
 
 	def get_sample(self):
@@ -272,8 +284,8 @@ class PhoneNumberSample(Sample):
 
 
 class URLSample(Sample):
-	def __init__(self):
-		super(URLSample, self).__init__()
+	def __init__(self, **kwargs):
+		super(URLSample, self).__init__(**kwargs)
 		self.text = TextSample(text_type=TextSample.Word)
 
 	def get_sample(self):
