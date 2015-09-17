@@ -12,10 +12,17 @@ class GeneratorRegister(object):
 	def register(self, obj):
 		self.generators.append(obj)
 
-	def generate(self):
+	def generate(self, command=None):
 		bulk = []
 		for generator in self.generators:
+			generator.command = command
+			if command is not None and command.verbosity > 1:
+				command.stdout.write('\nGenerating ' + generator.__class__.__name__ + ' ', ending='')
+				command.stdout.flush()
 			for obj in generator:
+				if command is not None and command.verbosity > 1:
+					command.stdout.write('.', ending='')
+					command.stdout.flush()
 				bulk.append(obj)
 				if len(bulk) >= self.bulk_size:
 					bulk[0].__class__.objects.bulk_create(bulk)
@@ -27,6 +34,8 @@ class GeneratorRegister(object):
 
 
 class ModelGenerator(object):
+	command = None
+
 	def __init__(self, model, count=0):
 		self.model = model
 		self.count = count
