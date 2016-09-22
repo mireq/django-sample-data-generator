@@ -39,10 +39,10 @@ class ModelGenerator(object):
 	def __init__(self, model, count=0):
 		self.model = model
 		self.count = count
-		self.num = 0
 
 	def __iter__(self):
-		return self
+		for __ in range(self.get_count()):
+			yield self.get_object()
 
 	def get_count(self):
 		return self.count
