@@ -19,6 +19,7 @@ class MetaOpts:
 	model = None
 	fill_optional = False
 	unique_checks = []
+	field_kwargs = {}
 	fields = None
 	exclude = ()
 
@@ -33,7 +34,7 @@ def field_to_generator(field, opts):
 		return {}
 	field_cls = field.__class__
 	if field_cls in GENERATORS:
-		return {field.name: GENERATORS[field_cls](field)}
+		return {field.name: GENERATORS[field_cls](field, **opts.field_kwargs.get(field.name, {}))}
 	else:
 		raise RuntimeError("Field %s is not registered" % str(field_cls))
 
@@ -45,6 +46,7 @@ class ModelGeneratorBase(type):
 		opts.model = getattr(opts, 'model', MetaOpts.model)
 		opts.fill_optional = getattr(opts, 'fill_optional', MetaOpts.fill_optional)
 		opts.unique_checks = getattr(opts, 'unique_checks', MetaOpts.unique_checks)
+		opts.field_kwargs = getattr(opts, 'field_kwargs', MetaOpts.field_kwargs)
 		opts.fields = getattr(opts, 'fields', MetaOpts.fields)
 		opts.exclude = getattr(opts, 'exclude', MetaOpts.exclude)
 		new_class._meta = opts
