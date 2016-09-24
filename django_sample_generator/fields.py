@@ -66,6 +66,7 @@ SeqIntegerFieldGenerator = function_field_generator_factory(function=functions.g
 DateFieldGenerator = function_field_generator_factory(function=functions.gen_date)
 DateTimeFieldGenerator = function_field_generator_factory(function=functions.gen_datetime)
 CharFieldGenerator = function_field_generator_factory(function=functions.gen_varchar)
+ChoiceFieldGenerator = function_field_generator_factory(function=functions.gen_choice)
 SlugFieldGenerator = function_field_generator_factory(function=functions.gen_slug)
 TextFieldGenerator = function_field_generator_factory(function=functions.gen_text_paragraph)
 ForeignKeyFieldGenerator = function_field_generator_factory(function=functions.gen_fk)
@@ -79,16 +80,26 @@ def generator_field_with_defaults(generator, default=None, **kwargs):
 	return generator(**kw)
 
 
+def get_char_field_generator(field, **kwargs):
+	if field.choices:
+		return generator_field_with_defaults(
+			ChoiceFieldGenerator,
+			default={'choices': [k for k, _ in field.choices]},
+			**kwargs
+		)
+	else:
+		return generator_field_with_defaults(
+			CharFieldGenerator,
+			default={'max_length': min(field.max_length, 255)},
+			**kwargs
+		)
+
+
 GENERATOR_FOR_DBFIELD = {
 	models.IntegerField:
 		lambda field, **kwargs: IntegerFieldGenerator(**kwargs),
 	models.CharField:
-		lambda field, **kwargs:
-			generator_field_with_defaults(
-				CharFieldGenerator,
-				default={'max_length': min(field.max_length, 255)},
-				**kwargs
-			),
+		get_char_field_generator,
 	models.SlugField:
 		lambda field, **kwargs: SlugFieldGenerator(**kwargs),
 	models.TextField:
