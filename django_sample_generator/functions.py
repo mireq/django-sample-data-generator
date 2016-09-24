@@ -98,8 +98,6 @@ def gen_text_long(paragraph_count=None, max_length=None):
 
 def gen_fk(queryset, random_data=True):
 	instances = list(queryset)
-	if not instances:
-		return None
 	for i in itertools.count():
 		if random_data:
 			yield random.choice(instances)
