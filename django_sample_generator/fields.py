@@ -57,6 +57,10 @@ def function_field_generator_factory(function=None, args=None, kwargs=None):
 	return make_instance
 
 
+def function_field_generator(function, **kwargs):
+	return function_field_generator_factory(function)(**kwargs)
+
+
 IntegerFieldGenerator = function_field_generator_factory(function=functions.gen_integer)
 SeqIntegerFieldGenerator = function_field_generator_factory(function=functions.gen_seq_integer)
 DateFieldGenerator = function_field_generator_factory(function=functions.gen_date)
