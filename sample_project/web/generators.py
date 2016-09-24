@@ -19,7 +19,7 @@ class ArticleGenerator(generator.ModelGenerator):
 
 	class Meta:
 		model = Article
-		exclude = ('slug',) # TODO: implement
+		exclude = ('slug',)
 
 
 generators = [

@@ -19,12 +19,18 @@ class MetaOpts:
 	model = None
 	fill_optional = False
 	unique_checks = []
+	fields = None
+	exclude = ()
 
 
 def field_to_generator(field, opts):
 	fill_optional = opts.fill_optional
 	if field.blank == True and (fill_optional == False or (fill_optional != True and field.name not in fill_optional)):
 		return {} # skip optional
+	if opts.fields is not None and field.name not in opts.fields:
+		return {}
+	if field.name in opts.exclude:
+		return {}
 	field_cls = field.__class__
 	if field_cls in GENERATORS:
 		return {field.name: GENERATORS[field_cls](field)}
@@ -39,6 +45,8 @@ class ModelGeneratorBase(type):
 		opts.model = getattr(opts, 'model', MetaOpts.model)
 		opts.fill_optional = getattr(opts, 'fill_optional', MetaOpts.fill_optional)
 		opts.unique_checks = getattr(opts, 'unique_checks', MetaOpts.unique_checks)
+		opts.fields = getattr(opts, 'fields', MetaOpts.fields)
+		opts.exclude = getattr(opts, 'exclude', MetaOpts.exclude)
 		new_class._meta = opts
 		new_class.generators = {}
 
