@@ -95,11 +95,21 @@ def get_char_field_generator(field, **kwargs):
 		)
 
 
+def get_foreign_key_generator(field, **kwargs):
+	return generator_field_with_defaults(
+		ForeignKeyFieldGenerator,
+		default={'queryset': field.rel.model._default_manager.only('pk')},
+		**kwargs
+	)
+
+
 GENERATOR_FOR_DBFIELD = {
 	models.IntegerField:
 		lambda field, **kwargs: IntegerFieldGenerator(**kwargs),
 	models.CharField:
 		get_char_field_generator,
+	models.ForeignKey:
+		get_foreign_key_generator,
 	models.SlugField:
 		lambda field, **kwargs: SlugFieldGenerator(**kwargs),
 	models.TextField:

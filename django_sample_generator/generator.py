@@ -93,7 +93,11 @@ class ModelGenerator(six.with_metaclass(ModelGeneratorBase)):
 	def get_object(self):
 		obj = self.model()
 		for name, generator in self.generators.items():
-			setattr(obj, name, next(generator))
+			try:
+				setattr(obj, name, next(generator))
+			except StopIteration:
+				print("Stop iteration on %s" % name)
+				raise
 		errors = set()
 		for __ in range(100):
 			errors = self.get_unique_errors(obj)
