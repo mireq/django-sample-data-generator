@@ -27,14 +27,14 @@ class MetaOpts:
 def field_to_generator(field, opts):
 	fill_optional = opts.fill_optional
 	if field.blank == True and (fill_optional == False or (fill_optional != True and field.name not in fill_optional)):
-		return {} # skip optional
+		return None # skip optional
 	if opts.fields is not None and field.name not in opts.fields:
-		return {}
+		return None
 	if field.name in opts.exclude:
-		return {}
+		return None
 	field_cls = field.__class__
 	if field_cls in GENERATORS:
-		return {field.name: GENERATORS[field_cls](field, **opts.field_kwargs.get(field.name, {}))}
+		return GENERATORS[field_cls](field, **opts.field_kwargs.get(field.name, {}))
 	else:
 		raise RuntimeError("Field %s is not registered" % str(field_cls))
 
@@ -50,7 +50,7 @@ class ModelGeneratorBase(type):
 		opts.fields = getattr(opts, 'fields', MetaOpts.fields)
 		opts.exclude = getattr(opts, 'exclude', MetaOpts.exclude)
 		new_class._meta = opts
-		new_class.generators = {}
+		new_class._meta.generators = {}
 
 		if opts.model:
 			for field in opts.model._meta.fields:
@@ -63,14 +63,13 @@ class ModelGeneratorBase(type):
 				gen = field_to_generator(field, opts)
 				if not gen:
 					continue
-				for key, field_generator in gen.items():
-					setattr(new_class, key, field_generator)
+				setattr(new_class, field.name, gen)
 			for check in opts.model._meta.unique_together:
 				opts.unique_checks.append(tuple(check))
 
 		generators = inspect.getmembers(new_class, lambda o: isinstance(o, FieldGenerator))
 		for name, generator in generators:
-			new_class.generators[name] = iter(generator)
+			new_class._meta.generators[name] = iter(generator)
 		return new_class
 
 
@@ -94,7 +93,7 @@ class ModelGenerator(six.with_metaclass(ModelGeneratorBase)):
 
 	def get_object(self):
 		obj = self.model()
-		for name, generator in self.generators.items():
+		for name, generator in self._meta.generators.items():
 			try:
 				setattr(obj, name, next(generator))
 			except StopIteration:
@@ -105,7 +104,7 @@ class ModelGenerator(six.with_metaclass(ModelGeneratorBase)):
 			errors = self.get_unique_errors(obj)
 			if not errors:
 				break
-			for name, generator in self.generators.items():
+			for name, generator in self._meta.generators.items():
 				if name in errors:
 					setattr(obj, name, next(generator))
 		if errors:
@@ -117,6 +116,12 @@ class ModelGenerator(six.with_metaclass(ModelGeneratorBase)):
 	def get_unique_errors(self, obj):
 		unique_errors = set()
 		for check in self._meta.unique_checks:
+			skip_check = False
+			for field in check:
+				if field not in self._meta.generators:
+					skip_check = True
+			if skip_check:
+				break
 			val = tuple(getattr(obj, field) for field in check)
 			if val in self.unique_values[check]:
 				unique_errors.update(check)
