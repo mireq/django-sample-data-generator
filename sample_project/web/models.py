@@ -11,7 +11,7 @@ class Category(models.Model):
 
 class Article(models.Model):
 	category = models.ForeignKey(Category)
-	name = models.CharField(max_length=100)
+	title = models.CharField(max_length=100)
 	slug = models.SlugField(max_length=20, unique=True)
 	perex = models.TextField()
 	content = models.TextField()
