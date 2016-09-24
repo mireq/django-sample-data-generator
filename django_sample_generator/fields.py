@@ -5,6 +5,8 @@ import itertools
 import inspect
 import copy
 
+from django.db import models
+
 from . import functions
 
 
@@ -22,8 +24,8 @@ class FunctionFieldGenerator(FieldGenerator):
 	function_args = []
 	function_kwargs = {}
 
-	def __init__(self, function=None, args=None, kwargs=None, *arg, **kwarg):
-		super(FunctionFieldGenerator, self).__init__(*arg, **kwarg)
+	def __init__(self, function=None, *args, **kwargs):
+		super(FunctionFieldGenerator, self).__init__()
 		self.function = function or self.function
 		self.function_args = args or []
 		self.function_kwargs = kwargs or {}
@@ -50,12 +52,8 @@ class FunctionFieldGenerator(FieldGenerator):
 
 
 def function_field_generator_factory(function=None, args=None, kwargs=None):
-	def make_instance(*arg, **kwarg):
-		kwarg = copy.copy(kwarg)
-		kwarg.setdefault('function', function)
-		kwarg.setdefault('args', args)
-		kwarg.setdefault('kwargs', kwargs)
-		return FunctionFieldGenerator(*arg, **kwarg)
+	def make_instance(*args, **kwargs):
+		return FunctionFieldGenerator(function=function, *args, **kwargs)
 	return make_instance
 
 
@@ -64,7 +62,35 @@ SeqIntegerFieldGenerator = function_field_generator_factory(function=functions.g
 DateFieldGenerator = function_field_generator_factory(function=functions.gen_date)
 DateTimeFieldGenerator = function_field_generator_factory(function=functions.gen_datetime)
 CharFieldGenerator = function_field_generator_factory(function=functions.gen_varchar)
+SlugFieldGenerator = function_field_generator_factory(function=functions.gen_slug)
 TextFieldGenerator = function_field_generator_factory(function=functions.gen_text_paragraph)
 ForeignKeyFieldGenerator = function_field_generator_factory(function=functions.gen_fk)
 EmailFieldGenerator = function_field_generator_factory(function=functions.gen_email)
 BooleanFieldGenerator = function_field_generator_factory(function=functions.gen_bool)
+
+
+def generator_field_with_defaults(generator, default=None, **kwargs):
+	kw = copy.copy(default) or {}
+	kw.update(kwargs)
+	return generator(**kw)
+
+
+GENERATOR_FOR_DBFIELD = {
+	models.IntegerField:
+		lambda field, **kwargs: IntegerFieldGenerator(**kwargs),
+	models.CharField:
+		lambda field, **kwargs:
+			generator_field_with_defaults(
+				CharFieldGenerator,
+				default={'max_length': min(field.max_length, 255)},
+				**kwargs
+			),
+	models.SlugField:
+		lambda field, **kwargs: SlugFieldGenerator(**kwargs),
+	models.TextField:
+		lambda field, **kwargs: TextFieldGenerator(**kwargs),
+	models.EmailField:
+		lambda field, **kwargs: EmailFieldGenerator(**kwargs),
+	models.BooleanField:
+		lambda field, **kwargs: BooleanFieldGenerator(**kwargs),
+}

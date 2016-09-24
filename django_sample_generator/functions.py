@@ -67,6 +67,15 @@ def gen_varchar(max_length=None, blank=False):
 		return ''
 
 
+def gen_slug(max_length=None, blank=False):
+	length = random.randint(0 if blank else 1, 16 if max_length is None else max_length)
+	chars = string.ascii_letters.lower()
+	if length:
+		return ''.join(random.choice(chars) for _ in range(length))
+	else:
+		return ''
+
+
 def gen_text_word(uppercase_word=False, max_length=None):
 	return trim_text(text_generator.get_word(uppercase_word), max_length)
 
