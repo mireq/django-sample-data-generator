@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-import itertools
 import inspect
-import copy
-from django.utils import six
+import itertools
 
 from django.db import models
+from django.utils import six
 
 from . import functions
 
@@ -24,7 +23,7 @@ class FieldGenerator(object):
 
 class FunctionFieldGeneratorBase(type):
 	def __new__(cls, name, bases, attrs):
-		fn = attrs.pop('function')
+		fn = attrs.pop('function', None)
 		new_class = super(FunctionFieldGeneratorBase, cls).__new__(cls, name, bases, attrs)
 		if fn:
 			new_class.function = staticmethod(fn)
@@ -60,16 +59,6 @@ class FunctionFieldGenerator(six.with_metaclass(FunctionFieldGeneratorBase, Fiel
 		return self.get_function()(**self.get_function_kwargs())
 
 
-def function_field_generator_factory(function=None, args=None, kwargs=None):
-	def make_instance(*args, **kwargs):
-		return FunctionFieldGenerator(function=function, *args, **kwargs)
-	return make_instance
-
-
-def function_field_generator(function, **kwargs):
-	return function_field_generator_factory(function)(**kwargs)
-
-
 class BinaryFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_binary
 
@@ -79,7 +68,24 @@ class BooleanFieldGenerator(FunctionFieldGenerator):
 
 
 class CharFieldGenerator(FunctionFieldGenerator):
-	function = functions.gen_varchar
+	def get_function(self):
+		if not self.field:
+			return functions.gen_varchar
+		else:
+			if self.field.choices:
+				return functions.gen_choice
+			else:
+				return functions.gen_varchar
+
+	def get_function_kwargs(self):
+		kwargs = super(CharFieldGenerator, self).get_function_kwargs()
+		if not self.field:
+			return kwargs
+		if self.field.choices:
+			kwargs.setdefault('choices', [k for k, _ in self.field.choices])
+		else:
+			kwargs.setdefault('max_length', min(self.field.max_length, 255))
+		return kwargs
 
 
 class ChoiceFieldGenerator(FunctionFieldGenerator):
@@ -105,6 +111,17 @@ class EmailFieldGenerator(FunctionFieldGenerator):
 class ForeignKeyFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_fk
 
+	def get_function_kwargs(self):
+		kwargs = super(ForeignKeyFieldGenerator, self).get_function_kwargs()
+		if not self.field:
+			return kwargs
+		kwargs.setdefault('queryset', self.field.rel.model._default_manager.only('pk'))
+		return kwargs
+
+
+class LongTextFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_text_long
+
 
 class IntegerFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_integer
@@ -122,35 +139,6 @@ class TextFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_text_paragraph
 
 
-def generator_field_with_defaults(generator, default=None, **kwargs):
-	kw = copy.copy(default) or {}
-	kw.update(kwargs)
-	return generator(**kw)
-
-
-def get_char_field_generator(field, **kwargs):
-	if field.choices:
-		return generator_field_with_defaults(
-			ChoiceFieldGenerator,
-			default={'choices': [k for k, _ in field.choices]},
-			**kwargs
-		)
-	else:
-		return generator_field_with_defaults(
-			CharFieldGenerator,
-			default={'max_length': min(field.max_length, 255)},
-			**kwargs
-		)
-
-
-def get_foreign_key_generator(field, **kwargs):
-	return generator_field_with_defaults(
-		ForeignKeyFieldGenerator,
-		default={'queryset': field.rel.model._default_manager.only('pk')},
-		**kwargs
-	)
-
-
 GENERATOR_FOR_DBFIELD = {
 	models.BigIntegerField:
 		lambda field, **kwargs: IntegerFieldGenerator(**kwargs),
@@ -159,7 +147,7 @@ GENERATOR_FOR_DBFIELD = {
 	models.BooleanField:
 		lambda field, **kwargs: BooleanFieldGenerator(**kwargs),
 	models.CharField:
-		get_char_field_generator,
+		lambda field, **kwargs: CharFieldGenerator(**kwargs),
 	models.DateField:
 		lambda field, **kwargs: DateFieldGenerator(**kwargs),
 	models.DateTimeField:
@@ -169,7 +157,7 @@ GENERATOR_FOR_DBFIELD = {
 	models.DurationField:
 		lambda field, **kwargs: DurationFieldGenerator(**kwargs),
 	models.ForeignKey:
-		get_foreign_key_generator,
+		lambda field, **kwargs: ForeignKeyFieldGenerator(**kwargs),
 	models.SlugField:
 		lambda field, **kwargs: SlugFieldGenerator(**kwargs),
 	models.TextField:
