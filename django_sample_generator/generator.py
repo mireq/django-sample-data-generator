@@ -7,6 +7,7 @@ from collections import defaultdict
 from django.conf import settings
 from django.db import models
 from django.utils import six
+from django.core.exceptions import FieldDoesNotExist
 
 from .fields import GENERATOR_FOR_DBFIELD, FieldGenerator
 
@@ -64,6 +65,11 @@ class ModelGeneratorBase(type):
 
 		generators = inspect.getmembers(new_class, lambda o: isinstance(o, FieldGenerator))
 		for name, generator in generators:
+			if opts.model is not None:
+				try:
+					generator.field = opts.model._meta.get_field(name)
+				except FieldDoesNotExist:
+					pass
 			new_class._meta.generators[name] = iter(generator)
 		return new_class
 

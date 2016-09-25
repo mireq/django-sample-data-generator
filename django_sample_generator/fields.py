@@ -12,6 +12,8 @@ from . import functions
 
 
 class FieldGenerator(object):
+	field = None
+
 	def __iter__(self):
 		for __ in itertools.count():
 			yield self.get_value()
