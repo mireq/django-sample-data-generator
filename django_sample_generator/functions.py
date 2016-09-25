@@ -77,7 +77,7 @@ def gen_duration(min_duration=0, max_duration=3600):
 
 def gen_varchar(max_length=None, blank=False):
 	length = random.randint(0 if blank else 1, 16 if max_length is None else max_length)
-	chars = string.printable
+	chars = string.ascii_letters + string.digits + ' '
 	if length:
 		return ''.join(random.choice(chars) for _ in range(length))
 	else:
