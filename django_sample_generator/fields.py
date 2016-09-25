@@ -21,13 +21,11 @@ class FieldGenerator(object):
 
 class FunctionFieldGenerator(FieldGenerator):
 	function = None
-	function_args = []
 	function_kwargs = {}
 
-	def __init__(self, function=None, *args, **kwargs):
+	def __init__(self, function=None, **kwargs):
 		super(FunctionFieldGenerator, self).__init__()
 		self.function = function or self.function
-		self.function_args = args or []
 		self.function_kwargs = kwargs or {}
 
 	def __iter__(self):
@@ -41,14 +39,11 @@ class FunctionFieldGenerator(FieldGenerator):
 	def get_function(self):
 		return self.function
 
-	def get_function_args(self):
-		return self.function_args
-
 	def get_function_kwargs(self):
 		return self.function_kwargs
 
 	def get_value(self):
-		return self.get_function()(*self.get_function_args(), **self.get_function_kwargs())
+		return self.get_function()(**self.get_function_kwargs())
 
 
 def function_field_generator_factory(function=None, args=None, kwargs=None):
