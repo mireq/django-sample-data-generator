@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import copy
 import inspect
 import itertools
 
@@ -39,7 +40,8 @@ class FunctionFieldGenerator(six.with_metaclass(FunctionFieldGeneratorBase, Fiel
 	def __init__(self, function=None, **kwargs):
 		super(FunctionFieldGenerator, self).__init__()
 		self.function = function or self.function
-		self.function_kwargs = kwargs or {}
+		self.function_kwargs = copy.copy(self.function_kwargs)
+		self.function_kwargs.update(kwargs)
 
 	def __iter__(self):
 		if inspect.isgeneratorfunction(self.get_function()):
@@ -108,6 +110,10 @@ class EmailFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_email
 
 
+class FloatFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_float
+
+
 class ForeignKeyFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_fk
 
@@ -127,6 +133,15 @@ class IntegerFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_integer
 
 
+class IPAddressFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_ip
+
+
+class PositiveIntegerFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_integer
+	function_kwargs = {'min_int': 1}
+
+
 class SeqIntegerFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_seq_integer
 
@@ -139,6 +154,18 @@ class TextFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_text_paragraph
 
 
+class TimeFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_time
+
+
+class URLFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_url
+
+
+class UUIDFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_uuid
+
+
 GENERATOR_FOR_DBFIELD = {
 	models.BigIntegerField: IntegerFieldGenerator,
 	models.BinaryField: BinaryFieldGenerator,
@@ -148,7 +175,19 @@ GENERATOR_FOR_DBFIELD = {
 	models.DateTimeField: DateTimeFieldGenerator,
 	models.DecimalField: IntegerFieldGenerator,
 	models.DurationField: DurationFieldGenerator,
+	models.EmailField: EmailFieldGenerator,
+	models.FloatField: FloatFieldGenerator,
 	models.ForeignKey: ForeignKeyFieldGenerator,
+	models.IPAddressField: IPAddressFieldGenerator,
+	models.GenericIPAddressField: IPAddressFieldGenerator,
+	models.IntegerField: IntegerFieldGenerator,
+	models.NullBooleanField: BooleanFieldGenerator,
+	models.PositiveIntegerField: PositiveIntegerFieldGenerator,
+	models.PositiveSmallIntegerField: PositiveIntegerFieldGenerator,
 	models.SlugField: SlugFieldGenerator,
+	models.SmallIntegerField: IntegerFieldGenerator,
 	models.TextField: TextFieldGenerator,
+	models.TimeField: TimeFieldGenerator,
+	models.URLField: URLFieldGenerator,
+	models.UUIDField: UUIDFieldGenerator,
 }

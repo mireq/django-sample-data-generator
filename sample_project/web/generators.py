@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django_sample_generator import generator, fields, functions
-from django.template.defaultfilters import slugify
-
 from .models import Category, Article
+from django.template.defaultfilters import slugify
+from django_sample_generator import generator, fields
 
 
 def unique_slugify(text, slugs, trim=16):
@@ -27,7 +26,7 @@ class CategoryGenerator(generator.ModelGenerator):
 
 
 class ArticleGenerator(generator.ModelGenerator):
-	content = fields.function_field_generator(functions.gen_text_long)
+	content = fields.LongTextFieldGenerator()
 
 	class Meta:
 		model = Article
