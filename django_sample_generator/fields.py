@@ -140,26 +140,15 @@ class TextFieldGenerator(FunctionFieldGenerator):
 
 
 GENERATOR_FOR_DBFIELD = {
-	models.BigIntegerField:
-		lambda field, **kwargs: IntegerFieldGenerator(**kwargs),
-	models.BinaryField:
-		lambda field, **kwargs: BinaryFieldGenerator(**kwargs),
-	models.BooleanField:
-		lambda field, **kwargs: BooleanFieldGenerator(**kwargs),
-	models.CharField:
-		lambda field, **kwargs: CharFieldGenerator(**kwargs),
-	models.DateField:
-		lambda field, **kwargs: DateFieldGenerator(**kwargs),
-	models.DateTimeField:
-		lambda field, **kwargs: DateTimeFieldGenerator(**kwargs),
-	models.DecimalField:
-		lambda field, **kwargs: IntegerFieldGenerator(**kwargs),
-	models.DurationField:
-		lambda field, **kwargs: DurationFieldGenerator(**kwargs),
-	models.ForeignKey:
-		lambda field, **kwargs: ForeignKeyFieldGenerator(**kwargs),
-	models.SlugField:
-		lambda field, **kwargs: SlugFieldGenerator(**kwargs),
-	models.TextField:
-		lambda field, **kwargs: TextFieldGenerator(**kwargs),
+	models.BigIntegerField: IntegerFieldGenerator,
+	models.BinaryField: BinaryFieldGenerator,
+	models.BooleanField: BooleanFieldGenerator,
+	models.CharField: CharFieldGenerator,
+	models.DateField: DateFieldGenerator,
+	models.DateTimeField: DateTimeFieldGenerator,
+	models.DecimalField: IntegerFieldGenerator,
+	models.DurationField: DurationFieldGenerator,
+	models.ForeignKey: ForeignKeyFieldGenerator,
+	models.SlugField: SlugFieldGenerator,
+	models.TextField: TextFieldGenerator,
 }

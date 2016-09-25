@@ -31,7 +31,7 @@ def field_to_generator(field, opts):
 		return None
 	field_cls = field.__class__
 	if field_cls in GENERATORS:
-		return GENERATORS[field_cls](field, **opts.field_kwargs.get(field.name, {}))
+		return GENERATORS[field_cls](**opts.field_kwargs.get(field.name, {}))
 	else:
 		raise RuntimeError("Field %s is not registered" % str(field_cls))
 
