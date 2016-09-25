@@ -104,8 +104,14 @@ def get_foreign_key_generator(field, **kwargs):
 
 
 GENERATOR_FOR_DBFIELD = {
-	models.IntegerField:
+	models.BigIntegerField:
 		lambda field, **kwargs: IntegerFieldGenerator(**kwargs),
+	models.BinaryField:
+		lambda field, **kwargs: CharFieldGenerator(**kwargs),
+	models.BooleanField:
+		lambda field, **kwargs: BooleanFieldGenerator(**kwargs),
+	#models.IntegerField:
+	#	lambda field, **kwargs: IntegerFieldGenerator(**kwargs),
 	models.CharField:
 		get_char_field_generator,
 	models.ForeignKey:
@@ -114,8 +120,6 @@ GENERATOR_FOR_DBFIELD = {
 		lambda field, **kwargs: SlugFieldGenerator(**kwargs),
 	models.TextField:
 		lambda field, **kwargs: TextFieldGenerator(**kwargs),
-	models.EmailField:
-		lambda field, **kwargs: EmailFieldGenerator(**kwargs),
-	models.BooleanField:
-		lambda field, **kwargs: BooleanFieldGenerator(**kwargs),
+	#models.EmailField:
+	#	lambda field, **kwargs: EmailFieldGenerator(**kwargs),
 }

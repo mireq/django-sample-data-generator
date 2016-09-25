@@ -17,7 +17,6 @@ GENERATORS.update(getattr(settings, 'GENERATOR_FOR_DBFIELD', {}))
 
 class MetaOpts:
 	model = None
-	fill_optional = False
 	unique_checks = []
 	field_kwargs = {}
 	fields = None
@@ -25,9 +24,6 @@ class MetaOpts:
 
 
 def field_to_generator(field, opts):
-	fill_optional = opts.fill_optional
-	if field.blank == True and (fill_optional == False or (fill_optional != True and field.name not in fill_optional)):
-		return None # skip optional
 	if opts.fields is not None and field.name not in opts.fields:
 		return None
 	if field.name in opts.exclude:
@@ -44,7 +40,6 @@ class ModelGeneratorBase(type):
 		new_class = super(ModelGeneratorBase, cls).__new__(cls, name, bases, attrs)
 		opts = getattr(new_class, 'Meta', MetaOpts)
 		opts.model = getattr(opts, 'model', MetaOpts.model)
-		opts.fill_optional = getattr(opts, 'fill_optional', MetaOpts.fill_optional)
 		opts.unique_checks = getattr(opts, 'unique_checks', MetaOpts.unique_checks)
 		opts.field_kwargs = getattr(opts, 'field_kwargs', MetaOpts.field_kwargs)
 		opts.fields = getattr(opts, 'fields', MetaOpts.fields)
