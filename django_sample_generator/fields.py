@@ -110,6 +110,11 @@ class EmailFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_email
 
 
+class FileFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_file
+	function_kwargs = {'file_name': 'mock.txt'}
+
+
 class FloatFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_float
 
@@ -127,6 +132,11 @@ class ForeignKeyFieldGenerator(FunctionFieldGenerator):
 
 class LongTextFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_text_long
+
+
+class ImageFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_file
+	function_kwargs = {'file_name': 'mock.png'}
 
 
 class IntegerFieldGenerator(FunctionFieldGenerator):
@@ -176,11 +186,13 @@ GENERATOR_FOR_DBFIELD = {
 	models.DecimalField: IntegerFieldGenerator,
 	models.DurationField: DurationFieldGenerator,
 	models.EmailField: EmailFieldGenerator,
+	models.FileField: FileFieldGenerator,
 	models.FloatField: FloatFieldGenerator,
 	models.ForeignKey: ForeignKeyFieldGenerator,
-	models.IPAddressField: IPAddressFieldGenerator,
 	models.GenericIPAddressField: IPAddressFieldGenerator,
+	models.IPAddressField: IPAddressFieldGenerator,
 	models.IntegerField: IntegerFieldGenerator,
+	models.ImageField: ImageFieldGenerator,
 	models.NullBooleanField: BooleanFieldGenerator,
 	models.PositiveIntegerField: PositiveIntegerFieldGenerator,
 	models.PositiveSmallIntegerField: PositiveIntegerFieldGenerator,

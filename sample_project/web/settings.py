@@ -49,3 +49,6 @@ USE_I18N = False
 USE_L10N = False
 
 USE_TZ = False
+
+MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'media'))
+MEDIA_URL = '/media/'

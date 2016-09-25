@@ -2,13 +2,15 @@
 from __future__ import unicode_literals
 
 import itertools
+import os
 import random
 import string
 import time
 from datetime import timedelta, datetime
 
 from django.conf import settings
-from django.utils.timezone import datetime as tz_datetime, utc
+from django.core.files.base import ContentFile
+from django.utils.timezone import datetime as tz_datetime, utc, now
 
 from .text_generator import text_generator
 
@@ -24,8 +26,25 @@ def now_add_days(days):
 	return datetime.now() + timedelta(days)
 
 
+def trim_text(text, max_length=None):
+	if not text:
+		return text
+	if max_length is None:
+		return text
+	else:
+		return text[:max_length]
+
+
 def gen_integer(min_int=-MAX_INT, max_int=MAX_INT):
 	return random.randint(min_int, max_int)
+
+
+def gen_float():
+	return (random.random() / (random.random() or 1.0)) * 1000.0
+
+
+def gen_ip():
+	return '.'.join(str(random.randint(0, 255)) for _ in range(4))
 
 
 def gen_seq_integer(start=1, step=1):
@@ -54,15 +73,6 @@ def gen_datetime(min_date=now_add_days(-365), max_date=now_add_days(365)):
 
 def gen_duration(min_duration=0, max_duration=3600):
 	return timedelta(seconds=random.randint(min_duration, max_duration))
-
-
-def trim_text(text, max_length=None):
-	if not text:
-		return text
-	if max_length is None:
-		return text
-	else:
-		return text[:max_length]
 
 
 def gen_varchar(max_length=None, blank=False):
@@ -142,3 +152,18 @@ def gen_choice(choices):
 def gen_seq_choice(choices):
 	for choice in choices:
 		yield choice
+
+
+def gen_time():
+	return now() + timedelta(seconds=random.randint(-3600*24, 0))
+
+
+def gen_uuid():
+	import uuid
+	return uuid.uuid4()
+
+
+def gen_file(file_name):
+	path = os.path.join(os.path.dirname(__file__), file_name)
+	with open(path, 'rb') as f:
+		return ContentFile(f.read(), file_name)
