@@ -21,7 +21,7 @@ Settings
 	)
 
 	SAMPLE_DATA_GENERATORS = (
-		'blog.generators.register',
+		'blog.generators',
 	)
 
 Example
@@ -31,15 +31,16 @@ Example
 
 	# blog/generators.py
 
-	from django_sample_generator import GeneratorRegister, ModelGenerator, NameSample, TextSample
+	from django_sample_generator import generator
 	from .models import Blog
 
-	class BlogGenerator(ModelGenerator):
-		title = NameSample()
-		content = TextSample(text_type=TextSample.Paragraph)
+	class BlogGenerator(generator.ModelGenerator):
+		class Meta:
+			model = Blog
 
-	register = GeneratorRegister()
-	register.register(BlogGenerator(Blog, 1000))
+	generators = [
+		BlogGenerator(10), # 10 blogs
+	]
 
 .. code:: bash
 
