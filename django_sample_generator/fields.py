@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 import itertools
 import inspect
 import copy
+from django.utils import six
 
 from django.db import models
 
@@ -19,7 +20,18 @@ class FieldGenerator(object):
 		raise NotImplementedError()
 
 
-class FunctionFieldGenerator(FieldGenerator):
+class FunctionFieldGeneratorBase(type):
+	def __new__(cls, name, bases, attrs):
+		fn = attrs.pop('function')
+		new_class = super(FunctionFieldGeneratorBase, cls).__new__(cls, name, bases, attrs)
+		if fn:
+			new_class.function = staticmethod(fn)
+		else:
+			new_class.function = fn
+		return new_class
+
+
+class FunctionFieldGenerator(six.with_metaclass(FunctionFieldGeneratorBase, FieldGenerator)):
 	function = None
 	function_kwargs = {}
 
@@ -56,19 +68,56 @@ def function_field_generator(function, **kwargs):
 	return function_field_generator_factory(function)(**kwargs)
 
 
-BinaryFieldGenerator = function_field_generator_factory(function=functions.gen_binary)
-BooleanFieldGenerator = function_field_generator_factory(function=functions.gen_bool)
-CharFieldGenerator = function_field_generator_factory(function=functions.gen_varchar)
-ChoiceFieldGenerator = function_field_generator_factory(function=functions.gen_choice)
-DateFieldGenerator = function_field_generator_factory(function=functions.gen_date)
-DateTimeFieldGenerator = function_field_generator_factory(function=functions.gen_datetime)
-DurationFieldGenerator = function_field_generator_factory(function=functions.gen_duration)
-EmailFieldGenerator = function_field_generator_factory(function=functions.gen_email)
-ForeignKeyFieldGenerator = function_field_generator_factory(function=functions.gen_fk)
-IntegerFieldGenerator = function_field_generator_factory(function=functions.gen_integer)
-SeqIntegerFieldGenerator = function_field_generator_factory(function=functions.gen_seq_integer)
-SlugFieldGenerator = function_field_generator_factory(function=functions.gen_slug)
-TextFieldGenerator = function_field_generator_factory(function=functions.gen_text_paragraph)
+class BinaryFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_binary
+
+
+class BooleanFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_bool
+
+
+class CharFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_varchar
+
+
+class ChoiceFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_choice
+
+
+class DateFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_date
+
+
+class DateTimeFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_datetime
+
+
+class DurationFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_duration
+
+
+class EmailFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_email
+
+
+class ForeignKeyFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_fk
+
+
+class IntegerFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_integer
+
+
+class SeqIntegerFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_seq_integer
+
+
+class SlugFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_slug
+
+
+class TextFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_text_paragraph
 
 
 def generator_field_with_defaults(generator, default=None, **kwargs):
@@ -123,6 +172,4 @@ GENERATOR_FOR_DBFIELD = {
 		lambda field, **kwargs: SlugFieldGenerator(**kwargs),
 	models.TextField:
 		lambda field, **kwargs: TextFieldGenerator(**kwargs),
-	#models.EmailField:
-	#	lambda field, **kwargs: EmailFieldGenerator(**kwargs),
 }
