@@ -52,16 +52,15 @@ class ModelGeneratorBase(type):
 			for field in opts.model._meta.fields:
 				if isinstance(field, models.AutoField):
 					continue
-				if field.unique:
-					opts.unique_checks.append((field.name,))
-				if hasattr(new_class, field.name):
-					continue
 				gen = field_to_generator(field, opts)
-				if not gen:
+				if gen is not None and field.unique:
+					opts.unique_checks.append((field.name,))
+				if hasattr(new_class, field.name) or not gen:
 					continue
 				setattr(new_class, field.name, gen)
 			for check in opts.model._meta.unique_together:
-				opts.unique_checks.append(tuple(check))
+				if all(hasattr(new_class, field) for field in check):
+					opts.unique_checks.append(tuple(check))
 
 		generators = inspect.getmembers(new_class, lambda o: isinstance(o, FieldGenerator))
 		for name, generator in generators:
