@@ -126,7 +126,8 @@ class ForeignKeyFieldGenerator(FunctionFieldGenerator):
 		kwargs = super(ForeignKeyFieldGenerator, self).get_function_kwargs()
 		if not self.field:
 			return kwargs
-		kwargs.setdefault('queryset', self.field.rel.model._default_manager.only('pk'))
+		if not 'queryset' in kwargs:
+			kwargs['queryset'] = self.field.rel.model._default_manager.only('pk')
 		return kwargs
 
 
