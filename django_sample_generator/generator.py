@@ -63,19 +63,19 @@ class ModelGeneratorBase(type):
 					opts.unique_checks.append(tuple(check))
 
 		generators = inspect.getmembers(new_class, lambda o: isinstance(o, FieldGenerator))
-		for name, generator in generators:
+		for field_name, generator in generators:
 			if opts.model is not None:
 				try:
-					generator.field = opts.model._meta.get_field(name)
+					generator.field = opts.model._meta.get_field(field_name)
 				except FieldDoesNotExist:
 					pass
-			new_class._meta.generators[name] = iter(generator)
+			new_class._meta.generators[field_name] = iter(generator)
 		return new_class
 
 
 class ModelGenerator(six.with_metaclass(ModelGeneratorBase)):
-	command = None
 	unique_values = None
+	bulk_size = 1000
 
 	def __init__(self, count=0, model=None):
 		self.model = model
@@ -131,6 +131,20 @@ class ModelGenerator(six.with_metaclass(ModelGeneratorBase)):
 		for check in self._meta.unique_checks:
 			val = tuple(getattr(obj, field) for field in check)
 			self.unique_values[check].add(val)
+
+	def generate(self, command=None):
+		bulk = []
+		for obj in self:
+			if command is not None and command.verbosity > 1:
+				command.stdout.write('.', ending='')
+				command.stdout.flush()
+			bulk.append(obj)
+			if len(bulk) >= self.bulk_size:
+				bulk[0].__class__.objects.bulk_create(bulk)
+				bulk = []
+		if bulk:
+			bulk[0].__class__.objects.bulk_create(bulk)
+			bulk = []
 
 	def done(self):
 		pass
