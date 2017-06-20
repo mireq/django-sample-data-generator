@@ -40,11 +40,11 @@ class ModelGeneratorBase(type):
 	def __new__(cls, name, bases, attrs):
 		new_class = super(ModelGeneratorBase, cls).__new__(cls, name, bases, attrs)
 		opts = getattr(new_class, 'Meta', MetaOpts)
-		opts.model = getattr(opts, 'model', MetaOpts.model)
-		opts.unique_checks = getattr(opts, 'unique_checks', MetaOpts.unique_checks)
-		opts.field_kwargs = getattr(opts, 'field_kwargs', MetaOpts.field_kwargs)
-		opts.fields = getattr(opts, 'fields', MetaOpts.fields)
-		opts.exclude = getattr(opts, 'exclude', MetaOpts.exclude)
+		opts.model = copy(getattr(opts, 'model', MetaOpts.model))
+		opts.unique_checks = copy(getattr(opts, 'unique_checks', MetaOpts.unique_checks))
+		opts.field_kwargs = copy(getattr(opts, 'field_kwargs', MetaOpts.field_kwargs))
+		opts.fields = copy(getattr(opts, 'fields', MetaOpts.fields))
+		opts.exclude = copy(getattr(opts, 'exclude', MetaOpts.exclude))
 		new_class._meta = opts
 		new_class._meta.generators = {}
 
