@@ -61,8 +61,13 @@ class TextGenerator(object):
 
 	@staticmethod
 	def from_file(filename):
-		token_list, token_transitions = pickle.load(open(filename, 'rb'))
+		with open(filename, 'rb') as fp:
+			token_list, token_transitions = pickle.load(fp)
 		return TextGenerator(token_list, token_transitions)
 
 
-text_generator = TextGenerator.from_file(os.path.join(os.path.dirname(__file__), 'text_db'))
+def get_text_generator():
+	if get_text_generator.generator is None:
+		get_text_generator.generator = TextGenerator.from_file(os.path.join(os.path.dirname(__file__), 'text_db'))
+	return get_text_generator.generator
+get_text_generator.generator = None

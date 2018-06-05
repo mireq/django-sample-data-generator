@@ -12,7 +12,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils.timezone import datetime as tz_datetime, utc, now
 
-from .text_generator import text_generator
+from .text_generator import get_text_generator
 
 
 MAX_INT = 10000
@@ -104,23 +104,23 @@ def gen_slug(max_length=None, blank=False):
 
 
 def gen_text_word(uppercase_word=False, max_length=None):
-	return trim_text(text_generator.get_word(uppercase_word), max_length)
+	return trim_text(get_text_generator().get_word(uppercase_word), max_length)
 
 
 def gen_text_name(uppercase_word=False, max_length=None):
-	return trim_text(text_generator.get_word(uppercase_word, min_length=2), max_length)
+	return trim_text(get_text_generator().get_word(uppercase_word, min_length=2), max_length)
 
 
 def gen_text_sentence(max_length=None):
-	return trim_text(text_generator.get_sentence(), max_length)
+	return trim_text(get_text_generator().get_sentence(), max_length)
 
 
 def gen_text_paragraph(sentence_count=None, max_length=None):
-	return trim_text(text_generator.get_paragraph(sentence_count), max_length)
+	return trim_text(get_text_generator().get_paragraph(sentence_count), max_length)
 
 
 def gen_text_long(paragraph_count=None, max_length=None):
-	return trim_text(text_generator.get_text(paragraph_count), max_length)
+	return trim_text(get_text_generator().get_text(paragraph_count), max_length)
 
 
 def gen_fk(queryset, random_data=True):
