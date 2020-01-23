@@ -30,7 +30,7 @@ class FunctionFieldGeneratorBase(type):
 		return new_class
 
 
-class FunctionFieldGenerator(FunctionFieldGeneratorBase, FieldGenerator):
+class FunctionFieldGenerator(FieldGenerator, metaclass=FunctionFieldGeneratorBase):
 	function = None
 	function_kwargs = {}
 

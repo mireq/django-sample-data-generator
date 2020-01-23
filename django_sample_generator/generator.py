@@ -72,7 +72,7 @@ class ModelGeneratorBase(type):
 		return new_class
 
 
-class ModelGenerator(ModelGeneratorBase):
+class ModelGenerator(object, metaclass=ModelGeneratorBase):
 	unique_values = None
 	bulk_size = 1000
 
