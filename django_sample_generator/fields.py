@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import copy
 import inspect
 import itertools
 
 from django.db import models
-from django.utils import six
 
 from . import functions
 
@@ -33,7 +30,7 @@ class FunctionFieldGeneratorBase(type):
 		return new_class
 
 
-class FunctionFieldGenerator(six.with_metaclass(FunctionFieldGeneratorBase, FieldGenerator)):
+class FunctionFieldGenerator(FunctionFieldGeneratorBase, FieldGenerator):
 	function = None
 	function_kwargs = {}
 

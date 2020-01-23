@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
-
 TEXT_START = ''
 SENTENCE_END = ['.', '?', '!']
 WORD_END = '\0'

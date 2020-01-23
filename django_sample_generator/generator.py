@@ -6,7 +6,6 @@ from copy import copy
 from collections import defaultdict
 from django.conf import settings
 from django.db import models
-from django.utils import six
 from django.core.exceptions import FieldDoesNotExist
 
 from .fields import GENERATOR_FOR_DBFIELD, FieldGenerator
@@ -73,7 +72,7 @@ class ModelGeneratorBase(type):
 		return new_class
 
 
-class ModelGenerator(six.with_metaclass(ModelGeneratorBase)):
+class ModelGenerator(ModelGeneratorBase):
 	unique_values = None
 	bulk_size = 1000
 
