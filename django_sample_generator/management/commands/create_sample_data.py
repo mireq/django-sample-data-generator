@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.db import transaction
 from django.utils.module_loading import import_string
 
 from ...register import GeneratorRegister
@@ -18,4 +19,5 @@ class Command(BaseCommand):
 			generator_module = import_string(generator_path + '.generators')
 			for generator in generator_module:
 				register.register(generator)
-		register.generate(command=self)
+		with transaction.atomic():
+			register.generate(command=self)
