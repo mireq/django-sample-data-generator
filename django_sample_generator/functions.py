@@ -50,7 +50,7 @@ def gen_seq_integer(start=1, step=1):
 		yield i
 
 
-def gen_date(min_date=today_add_days(-365), max_date=today_add_days(365)):
+def gen_date(min_date=today_add_days(-365), max_date=today_add_days(0)):
 	min_date = time.mktime(min_date.timetuple())
 	max_date = time.mktime(max_date.timetuple())
 	for __ in itertools.count():
@@ -58,7 +58,7 @@ def gen_date(min_date=today_add_days(-365), max_date=today_add_days(365)):
 		yield tz_datetime.fromtimestamp(time.mktime(time.localtime(random_time))).date()
 
 
-def gen_datetime(min_date=now_add_days(-365), max_date=now_add_days(365)):
+def gen_datetime(min_date=now_add_days(-365), max_date=now_add_days(0)):
 	min_date = time.mktime(min_date.timetuple())
 	max_date = time.mktime(max_date.timetuple())
 	for __ in itertools.count():
