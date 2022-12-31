@@ -11,9 +11,18 @@ class UniqueTogetherGenerator(generator.ModelGenerator):
 		model = UniqueTogether
 
 
+class UniquePartialGenerator(generator.ModelGenerator):
+	foo = fields.SeqChoiceFieldGenerator(choices=[0, 1, 1])
+	bar = fields.SeqChoiceFieldGenerator(choices=[0, 0, 1])
+
+	class Meta:
+		model = UniqueTogether
+
+
 generators = []
 test_generators = {
 	'unique_together': [UniqueTogetherGenerator(2)],
+	'unique_partial': [UniquePartialGenerator(2)],
 }
 
 def set_test(test):

@@ -23,7 +23,7 @@ class UniqueTogether(models.Model):
 	bar = models.IntegerField()
 
 	class Meta:
-		unique_together = [('foo', 'bar'),]
+		unique_together = [('foo', 'bar'), ('bar',)]
 
 
 class Category(models.Model):

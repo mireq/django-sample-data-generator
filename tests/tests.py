@@ -178,3 +178,9 @@ class TestModelGenerator(TestCase):
 		call_command('create_sample_data')
 		with self.assertRaises(RuntimeError):
 			call_command('create_sample_data')
+
+	@override_settings(SAMPLE_DATA_GENERATORS=['tests.generators_unique_fail'])
+	def test_partial(self):
+		set_unique_test('unique_partial')
+		call_command('create_sample_data')
+		self.assertEqual([(0, 0), (1, 1)], list(UniqueTogether.objects.order_by('pk').values_list('foo', 'bar')))
