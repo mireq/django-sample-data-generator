@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import models
 
 
@@ -15,7 +13,7 @@ class Article(models.Model):
 		('n', 'Not published')
 	)
 
-	category = models.ForeignKey(Category)
+	category = models.ForeignKey(Category, on_delete=models.CASCADE)
 	title = models.CharField(max_length=100)
 	slug = models.SlugField(max_length=20, unique=True)
 	perex = models.TextField()
@@ -37,7 +35,7 @@ class Article(models.Model):
 	integer_field = models.IntegerField()
 	image_field = models.ImageField()
 	ip_address_field = models.GenericIPAddressField()
-	null_boolean_field = models.NullBooleanField()
+	null_boolean_field = models.BooleanField(null=True)
 	positive_integer_field = models.PositiveIntegerField()
 	positive_small_integer_field = models.PositiveSmallIntegerField()
 	slug_field = models.SlugField()

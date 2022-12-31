@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+from django.template.defaultfilters import slugify
 
 from .models import Category, Article
-from django.template.defaultfilters import slugify
 from django_sample_generator import generator, fields
 
 
