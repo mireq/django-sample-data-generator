@@ -9,7 +9,7 @@ def print_help():
 	sys.stdout.write("Usage: %s content_type length\n" % (sys.argv[0]))
 	sys.stdout.write("Content types:\n" )
 	sys.stdout.write("    w  - word\n")
-	sys.stdout.write("    uw - uppercase word\n")
+	sys.stdout.write("    uw - uppercase first letter of word\n")
 	sys.stdout.write("    s  - sentence\n")
 	sys.stdout.write("    p  - paragraph\n")
 	sys.stdout.write("    t  - text\n")
