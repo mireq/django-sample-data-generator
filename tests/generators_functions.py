@@ -21,11 +21,16 @@ class TextGenerator(generator.ModelGenerator):
 	sentence = fields.SentenceFieldGenerator(max_length=5)
 
 
+class SeqChoiceGenerator(generator.ModelGenerator):
+	field = fields.SeqChoiceFieldGenerator(choices=['A', 'B'])
+
+
 generators = []
 test_generators = {
 	'blank': [BlankTextGenerator(1, model=Foo)],
 	'blank_slug': [BlankSlugGenerator(1, model=Foo)],
 	'seq': [SeqIntegerGenerator(2, model=Foo)],
+	'seq_choice': [SeqChoiceGenerator(2, model=Foo)],
 	'text': [TextGenerator(1, model=Foo)],
 }
 

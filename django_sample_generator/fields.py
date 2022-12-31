@@ -152,6 +152,10 @@ class SeqIntegerFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_seq_integer
 
 
+class SeqChoiceFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_seq_choice
+
+
 class SlugFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_slug
 

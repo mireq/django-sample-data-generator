@@ -152,6 +152,11 @@ class TestFunctions(TestCase):
 		call_command('create_sample_data')
 		self.assertEqual(['10', '15'], self.get_field_values())
 
+	def test_seq_choice(self):
+		set_test('seq_choice')
+		call_command('create_sample_data')
+		self.assertEqual(['A', 'B'], self.get_field_values())
+
 	def test_text(self):
 		set_test('text')
 		call_command('create_sample_data')

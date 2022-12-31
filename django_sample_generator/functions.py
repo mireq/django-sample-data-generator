@@ -150,8 +150,7 @@ def gen_choice(choices):
 
 
 def gen_seq_choice(choices):
-	for choice in choices:
-		yield choice
+	yield from iter(choices)
 
 
 def gen_time():
