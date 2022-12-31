@@ -28,7 +28,7 @@ class TextGenerator(object):
 
 	def get_word(self, uppercase=False, include_stops=False, min_length=1):
 		word = ''
-		while len(word) < min_length:
+		while len(word) <= min_length:
 			word = self.__generate_word()
 		if not include_stops and word[-1] in SPECIAL_TOKENS:
 			word = word[:-1]
