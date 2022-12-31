@@ -22,8 +22,9 @@ class TestCommand(TestCase):
 
 	def test_run_command(self):
 		call_command('create_sample_data')
-		with patch('sys.stdout', new_callable=StringIO):
-			call_command('create_sample_data', verbosity=3)
+		with override_settings(USE_TZ=True):
+			with patch('sys.stdout', new_callable=StringIO):
+				call_command('create_sample_data', verbosity=3)
 
 
 class TestCommandline(TestCase):
