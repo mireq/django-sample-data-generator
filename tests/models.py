@@ -18,6 +18,14 @@ class NotRegistered(models.Model):
 	field = CustomField(max_length=100)
 
 
+class UniqueTogether(models.Model):
+	foo = models.IntegerField()
+	bar = models.IntegerField()
+
+	class Meta:
+		unique_together = [('foo', 'bar'),]
+
+
 class Category(models.Model):
 	name = models.CharField(max_length=100)
 	slug = models.SlugField(max_length=20, unique=True)

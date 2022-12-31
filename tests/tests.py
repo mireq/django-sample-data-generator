@@ -8,8 +8,9 @@ from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
-from .generators_functions import set_test
-from .models import Article, Category, Foo
+from .generators_functions import set_test as set_function_test
+from .generators_unique_fail import set_test as set_unique_test
+from .models import Article, Category, Foo, UniqueTogether
 from django_sample_generator import constants
 from django_sample_generator.__main__ import main
 from django_sample_generator.fields import FieldGenerator
@@ -65,7 +66,7 @@ class TestCommandline(TestCase):
 			with patch('sys.stdout', new_callable=StringIO) as cm:
 				main()
 		self.assertNotEqual('', cm.getvalue())
-		self.assertTrue(cm.getvalue()[0].isupper())
+		self.assertTrue(cm.getvalue()[0].istitle())
 
 	def test_sentence(self):
 		with patch.object(sys, 'argv', ['main', 's']):
@@ -138,27 +139,27 @@ class TestFunctions(TestCase):
 		self.assertIsNone(trim_text(None))
 
 	def test_blank(self):
-		set_test('blank')
+		set_function_test('blank')
 		call_command('create_sample_data')
 		self.assertEqual([''], self.get_field_values())
 
 	def test_blank_slug(self):
-		set_test('blank_slug')
+		set_function_test('blank_slug')
 		call_command('create_sample_data')
 		self.assertEqual([''], self.get_field_values())
 
 	def test_seq(self):
-		set_test('seq')
+		set_function_test('seq')
 		call_command('create_sample_data')
 		self.assertEqual(['10', '15'], self.get_field_values())
 
 	def test_seq_choice(self):
-		set_test('seq_choice')
+		set_function_test('seq_choice')
 		call_command('create_sample_data')
 		self.assertEqual(['A', 'B'], self.get_field_values())
 
 	def test_text(self):
-		set_test('text')
+		set_function_test('text')
 		call_command('create_sample_data')
 		# trimmed to 1 character
 		self.assertEqual(1, len(self.get_field_values()[0]))
@@ -167,5 +168,13 @@ class TestFunctions(TestCase):
 class TestModelGenerator(TestCase):
 	@override_settings(SAMPLE_DATA_GENERATORS=['tests.generators_not_registered'])
 	def test_wrong_field(self):
+		set_unique_test('unique_together')
+		with self.assertRaises(RuntimeError):
+			call_command('create_sample_data')
+
+	@override_settings(SAMPLE_DATA_GENERATORS=['tests.generators_unique_fail'])
+	def test_unique_failed(self):
+		set_unique_test('unique_together')
+		call_command('create_sample_data')
 		with self.assertRaises(RuntimeError):
 			call_command('create_sample_data')
