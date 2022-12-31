@@ -5,7 +5,10 @@ Sample data generator
 Install
 -------
 
-`pip install https://github.com/mireq/django-sample-data-generator.git`
+.. code:: bash
+
+	pip install django-sample-data-generator
+
 
 Usage
 -----
