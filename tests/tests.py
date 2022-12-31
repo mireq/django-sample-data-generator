@@ -137,6 +137,11 @@ class TestFunctions(TestCase):
 		call_command('create_sample_data')
 		self.assertEqual([''], self.get_field_values())
 
+	def test_blank_slug(self):
+		set_test('blank_slug')
+		call_command('create_sample_data')
+		self.assertEqual([''], self.get_field_values())
+
 	def test_seq(self):
 		set_test('seq')
 		call_command('create_sample_data')
