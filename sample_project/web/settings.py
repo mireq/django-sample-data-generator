@@ -1,6 +1,8 @@
-import os
+# -*- coding: utf-8 -*-
+from pathlib import Path
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+BASE_DIR = Path(__file__).parent.parent
 
 SECRET_KEY = 'secret_key'
 
@@ -32,7 +34,7 @@ WSGI_APPLICATION = 'web.wsgi.application'
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.sqlite3',
-		'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+		'NAME': BASE_DIR / 'db.sqlite3',
 	}
 }
 
@@ -52,5 +54,5 @@ USE_TZ = False
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
-MEDIA_ROOT = os.path.abspath(os.path.join(BASE_DIR, 'media'))
+MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
