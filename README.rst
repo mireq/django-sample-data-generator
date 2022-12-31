@@ -2,6 +2,8 @@
 Sample data generator
 =====================
 
+|codecov| |version| |downloads| |license|
+
 Install
 -------
 
@@ -48,3 +50,15 @@ Example
 .. code:: bash
 
 	python manage.py create_sample_data
+
+.. |codecov| image:: https://codecov.io/gh/mireq/django-sample-data-generator/branch/master/graph/badge.svg?token=1IMD01ean6
+	:target: https://codecov.io/gh/mireq/django-sample-data-generator
+
+.. |version| image:: https://badge.fury.io/py/django-sample-data-generator.svg
+	:target: https://pypi.python.org/pypi/django-sample-data-generator/
+
+.. |downloads| image:: https://img.shields.io/pypi/dw/django-sample-data-generator.svg
+	:target: https://pypi.python.org/pypi/django-sample-data-generator/
+
+.. |license| image:: https://img.shields.io/pypi/l/django-sample-data-generator.svg
+	:target: https://pypi.python.org/pypi/django-sample-data-generator/
