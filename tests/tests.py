@@ -17,8 +17,9 @@ class TestCommand(TestCase):
 		shutil.rmtree(settings.MEDIA_ROOT)
 
 	def test_run_command(self):
-		call_command('create_sample_data', verbosity=3)
-		call_command('create_sample_data')
+		with patch('sys.stdout', new_callable=StringIO):
+			call_command('create_sample_data', verbosity=3)
+			call_command('create_sample_data')
 
 
 class TestCommandline(TestCase):
