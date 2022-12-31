@@ -46,14 +46,13 @@ def gen_ip():
 
 
 def gen_seq_integer(start=1, step=1):
-	for i in itertools.count(start, step):
-		yield i
+	yield from itertools.count(start, step)
 
 
 def gen_date(min_date=today_add_days(-365), max_date=today_add_days(0)):
 	min_date = time.mktime(min_date.timetuple())
 	max_date = time.mktime(max_date.timetuple())
-	for __ in itertools.count():
+	while True:
 		random_time = min_date + random.random() * (max_date - min_date)
 		yield tz_datetime.fromtimestamp(time.mktime(time.localtime(random_time))).date()
 
@@ -61,7 +60,7 @@ def gen_date(min_date=today_add_days(-365), max_date=today_add_days(0)):
 def gen_datetime(min_date=now_add_days(-365), max_date=now_add_days(0)):
 	min_date = time.mktime(min_date.timetuple())
 	max_date = time.mktime(max_date.timetuple())
-	for __ in itertools.count():
+	while True:
 		random_time = min_date + random.random() * (max_date - min_date)
 		if settings.USE_TZ:
 			yield tz_datetime.fromtimestamp(time.mktime(time.localtime(random_time))).replace(tzinfo=utc)
