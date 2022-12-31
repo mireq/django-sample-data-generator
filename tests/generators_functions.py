@@ -25,6 +25,16 @@ class SeqChoiceGenerator(generator.ModelGenerator):
 	field = fields.SeqChoiceFieldGenerator(choices=['A', 'B'])
 
 
+class BulkGenerator(generator.ModelGenerator):
+	bulk_size = 2
+	field = fields.SeqIntegerFieldGenerator(start=1)
+
+
+class Bulk2Generator(generator.ModelGenerator):
+	bulk_size = 2
+	field = fields.SeqIntegerFieldGenerator(start=1)
+
+
 generators = []
 test_generators = {
 	'blank': [BlankTextGenerator(1, model=Foo)],
@@ -32,6 +42,8 @@ test_generators = {
 	'seq': [SeqIntegerGenerator(2, model=Foo)],
 	'seq_choice': [SeqChoiceGenerator(2, model=Foo)],
 	'text': [TextGenerator(1, model=Foo)],
+	'bulk': [BulkGenerator(2, model=Foo)],
+	'bulk2': [Bulk2Generator(3, model=Foo)],
 }
 
 

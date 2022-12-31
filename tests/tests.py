@@ -164,6 +164,18 @@ class TestFunctions(TestCase):
 		# trimmed to 1 character
 		self.assertEqual(1, len(self.get_field_values()[0]))
 
+	def test_bulk(self):
+		set_function_test('bulk')
+		call_command('create_sample_data')
+		# without overflow
+		self.assertEqual(['1', '2'], self.get_field_values())
+
+	def test_bulk2(self):
+		set_function_test('bulk2')
+		call_command('create_sample_data')
+		# with overflow
+		self.assertEqual(['1', '2', '3'], self.get_field_values())
+
 
 class TestModelGenerator(TestCase):
 	@override_settings(SAMPLE_DATA_GENERATORS=['tests.generators_not_registered'])
