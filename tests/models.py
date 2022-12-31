@@ -22,6 +22,9 @@ class Category(models.Model):
 	name = models.CharField(max_length=100)
 	slug = models.SlugField(max_length=20, unique=True)
 
+	class Meta:
+		unique_together = [('slug', 'id'),]
+
 
 class Article(models.Model):
 	PUBLISHED_CHOICES = (

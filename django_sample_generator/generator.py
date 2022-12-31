@@ -60,8 +60,7 @@ class ModelGeneratorBase(type):
 					continue
 				setattr(new_class, field.name, gen)
 			for check in opts.model._meta.unique_together:
-				if all(hasattr(new_class, field) for field in check):
-					opts.unique_checks.append(tuple(check))
+				opts.unique_checks.append(tuple(check))
 
 		generators = inspect.getmembers(new_class, lambda o: isinstance(o, FieldGenerator))
 		for field_name, generator in generators:
