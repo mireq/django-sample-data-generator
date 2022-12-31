@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+import array
 import os
 import pickle
 import random
+from io import StringIO
 from itertools import chain
 
 from .constants import TEXT_START, SENTENCE_END, WORD_END, SPECIAL_TOKENS
@@ -9,22 +11,23 @@ from .constants import TEXT_START, SENTENCE_END, WORD_END, SPECIAL_TOKENS
 
 class TextGenerator(object):
 	def __init__(self, token_list, token_transitions):
-		self.token_list = token_list
+		self.token_list = tuple(token_list)
 		self.token_transitions = token_transitions
 		self.token_list_search = {s: i for i, s in enumerate(self.token_list) if s in SPECIAL_TOKENS}
 		self.stop_tokens = set([self.token_list_search[w] for w in (SENTENCE_END + [WORD_END])])
-		self.token_transitions_idx = tuple(tuple(chain(*[[v[0]] * v[1] for v in val])) for val in self.token_transitions)
+		self.token_transitions_idx = tuple(array.array('L', chain(*[[v[0]] * v[1] for v in val])) for val in self.token_transitions)
+		self.word_end = self.token_list_search[WORD_END]
+		self.text_start = self.token_list_search[TEXT_START]
 
 	def __generate_word(self):
-		word = []
-		current_part = self.token_list_search[TEXT_START]
-		stop = self.token_list_search[WORD_END]
+		word = StringIO()
+		current_part = self.text_start
 		while current_part not in self.stop_tokens:
 			parts = self.token_transitions_idx[current_part]
-			current_part = parts[random.randrange(0, len(parts))]
-			if current_part != stop:
-				word.append(self.token_list[current_part])
-		return ''.join(word)
+			current_part = random.choice(parts)
+			if current_part != self.word_end:
+				word.write(self.token_list[current_part])
+		return word.getvalue()
 
 	def get_word(self, uppercase=False, include_stops=False, min_length=1):
 		word = ''
