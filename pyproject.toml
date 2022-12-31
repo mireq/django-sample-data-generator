@@ -35,9 +35,8 @@ dev = [
 requires = ["setuptools", "setuptools-scm", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["django_sample_generator"]
+[tool.setuptools]
+packages = ["django_sample_generator", "django_sample_generator.management", "django_sample_generator.management.commands"]
 
 [tool.setuptools_scm]
 
