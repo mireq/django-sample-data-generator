@@ -162,3 +162,10 @@ class TestFunctions(TestCase):
 		call_command('create_sample_data')
 		# trimmed to 1 character
 		self.assertEqual(1, len(self.get_field_values()[0]))
+
+
+class TestModelGenerator(TestCase):
+	@override_settings(SAMPLE_DATA_GENERATORS=['tests.generators_not_registered'])
+	def test_wrong_field(self):
+		with self.assertRaises(RuntimeError):
+			call_command('create_sample_data')

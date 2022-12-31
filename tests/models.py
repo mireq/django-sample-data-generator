@@ -10,6 +10,14 @@ class Foo(models.Model):
 	field = models.CharField(max_length=100)
 
 
+class CustomField(models.CharField):
+	pass
+
+
+class NotRegistered(models.Model):
+	field = CustomField(max_length=100)
+
+
 class Category(models.Model):
 	name = models.CharField(max_length=100)
 	slug = models.SlugField(max_length=20, unique=True)
