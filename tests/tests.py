@@ -3,17 +3,17 @@ import shutil
 import sys
 from io import StringIO
 from unittest.mock import patch
-import timeit
 
 from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
-from .models import Article, Category
+from .models import Article, Category, Foo
 from django_sample_generator import constants
 from django_sample_generator.__main__ import main
 from django_sample_generator.fields import FieldGenerator
 from django_sample_generator.text_generator import get_text_generator
+from .generators_functions import set_test
 
 
 class TestCommand(TestCase):
@@ -124,3 +124,11 @@ class TestTextGenerator(TestCase):
 
 	def test_long_word(self):
 		self.assertGreaterEqual(len(self.gen.get_word(min_length=30)), 30)
+
+
+@override_settings(SAMPLE_DATA_GENERATORS=['tests.generators_functions'])
+class TestFunctions(TestCase):
+	def test_blank(self):
+		set_test('blank')
+		call_command('create_sample_data')
+		self.assertEqual([''], list(Foo.objects.values_list('field', flat=True)))
