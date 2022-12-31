@@ -49,12 +49,12 @@ class TextGenerator(object):
 		return word
 
 	def get_sentence(self):
-		words = []
+		words = StringIO()
 		word = ''
 		while word[-1:] not in set(SENTENCE_END):
-			word = self.get_word(uppercase=len(words) == 0, include_stops=True)
-			words.append(word)
-		return ' '.join(words)
+			word = self.get_word(uppercase=words.tell() == 0, include_stops=True)
+			words.write(word)
+		return words.getvalue()
 
 	def get_paragraph(self, length=None):
 		if length is None:
