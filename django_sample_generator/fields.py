@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import copy
 import inspect
-import itertools
 
 from django.db import models
 
@@ -12,7 +11,7 @@ class FieldGenerator(object):
 	field = None
 
 	def __iter__(self):
-		for __ in itertools.count():
+		while True:
 			yield self.get_value()
 
 	def get_value(self):
@@ -42,10 +41,9 @@ class FunctionFieldGenerator(FieldGenerator, metaclass=FunctionFieldGeneratorBas
 
 	def __iter__(self):
 		if inspect.isgeneratorfunction(self.get_function()):
-			for value in self.get_value():
-				yield value
+			yield from self.get_value()
 		else:
-			for __ in itertools.count():
+			while True:
 				yield self.get_value()
 
 	def get_function(self):
