@@ -35,7 +35,7 @@ class FunctionFieldGenerator(FieldGenerator, metaclass=FunctionFieldGeneratorBas
 	function_kwargs = {}
 
 	def __init__(self, function=None, **kwargs):
-		super(FunctionFieldGenerator, self).__init__()
+		super().__init__()
 		self.function = function or self.function
 		self.function_kwargs = copy.copy(self.function_kwargs)
 		self.function_kwargs.update(kwargs)
@@ -77,7 +77,7 @@ class CharFieldGenerator(FunctionFieldGenerator):
 				return functions.gen_varchar
 
 	def get_function_kwargs(self):
-		kwargs = super(CharFieldGenerator, self).get_function_kwargs()
+		kwargs = super().get_function_kwargs()
 		if not self.field:
 			return kwargs
 		if self.field.choices:
@@ -120,7 +120,7 @@ class ForeignKeyFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_fk
 
 	def get_function_kwargs(self):
-		kwargs = super(ForeignKeyFieldGenerator, self).get_function_kwargs()
+		kwargs = super().get_function_kwargs()
 		if not self.field:
 			return kwargs
 		if not 'queryset' in kwargs:
