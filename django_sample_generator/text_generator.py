@@ -19,27 +19,33 @@ class TextGenerator(object):
 		self.word_end = self.token_list_search[WORD_END]
 		self.text_start = self.token_list_search[TEXT_START]
 
-	def __generate_word(self):
+	def __generate_word(self, min_length=1):
 		word = StringIO()
 		current_part = self.text_start
-		while current_part not in self.stop_tokens:
+		while True:
 			parts = self.token_transitions_idx[current_part]
 			current_part = random.choice(parts)
-			if current_part != self.word_end:
-				word.write(self.token_list[current_part])
+
+			# check if it's end of word
+			if current_part in self.stop_tokens:
+				# ensure, that word has a minimal length
+				if word.tell() >= min_length:
+					word.write(self.token_list[current_part])
+					break
+				else:
+					current_part = self.text_start
+					continue
+
+			# write current part
+			word.write(self.token_list[current_part])
 		return word.getvalue()
 
 	def get_word(self, uppercase=False, include_stops=False, min_length=1):
-		word = ''
-		while len(word) <= min_length:
-			word = self.__generate_word()
-		if not include_stops and word[-1] in SPECIAL_TOKENS:
+		word = self.__generate_word(min_length=min_length)
+		if not include_stops and word[-1:] in SPECIAL_TOKENS:
 			word = word[:-1]
 		if uppercase:
-			if len(word) > 1:
-				word = word[0].upper() + word[1:]
-			else:
-				word = word.upper()
+			word = word.title()
 		return word
 
 	def get_sentence(self):
