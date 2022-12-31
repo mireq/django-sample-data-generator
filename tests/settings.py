@@ -18,3 +18,5 @@ DATABASES = {
 SAMPLE_DATA_GENERATORS = (
 	'tests.generators',
 )
+
+MEDIA_ROOT = BASE_DIR / 'media'
