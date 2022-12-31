@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
 import sys
+
+from django_sample_generator.text_generator import get_text_generator
 
 
 def print_help():
@@ -15,8 +16,6 @@ def print_help():
 
 
 def main():
-	sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-	from django_sample_generator.text_generator import get_text_generator
 	gen = get_text_generator()
 
 	if len(sys.argv) < 2 or len(sys.argv) > 3:
