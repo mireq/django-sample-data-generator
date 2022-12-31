@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
+import uuid
+from datetime import timedelta, time
+
 from django.db import models
+from django.utils import timezone
 
 
 class Category(models.Model):
@@ -21,26 +25,26 @@ class Article(models.Model):
 	published = models.CharField(max_length=1, choices=PUBLISHED_CHOICES)
 
 	# all fields
-	big_integer_field = models.BigIntegerField()
+	big_integer_field = models.BigIntegerField(default=0)
 	binary_field = models.BinaryField()
-	boolean_fied = models.BooleanField()
+	boolean_fied = models.BooleanField(default=False)
 	char_field = models.CharField(max_length=100)
-	date_field = models.DateField()
-	date_time_field = models.DateTimeField()
-	decimal_field = models.DecimalField(max_digits=10, decimal_places=0)
-	duration_field = models.DurationField()
-	email_field = models.EmailField()
+	date_field = models.DateField(default=timezone.now)
+	date_time_field = models.DateTimeField(default=timezone.now)
+	decimal_field = models.DecimalField(max_digits=10, decimal_places=0, default=0)
+	duration_field = models.DurationField(default=timedelta(0))
+	email_field = models.EmailField(default='example@tld.com')
 	file_field = models.FileField()
-	float_field = models.FloatField()
-	integer_field = models.IntegerField()
+	float_field = models.FloatField(default=0)
+	integer_field = models.IntegerField(default=0)
 	image_field = models.ImageField()
-	ip_address_field = models.GenericIPAddressField()
+	ip_address_field = models.GenericIPAddressField(default='127.0.0.1')
 	null_boolean_field = models.BooleanField(null=True)
-	positive_integer_field = models.PositiveIntegerField()
-	positive_small_integer_field = models.PositiveSmallIntegerField()
+	positive_integer_field = models.PositiveIntegerField(default=0)
+	positive_small_integer_field = models.PositiveSmallIntegerField(default=0)
 	slug_field = models.SlugField()
-	small_integer_field = models.SmallIntegerField()
-	text_field = models.TextField()
-	time_field = models.TimeField()
-	url_field = models.URLField()
-	uuid_field = models.UUIDField()
+	small_integer_field = models.SmallIntegerField(default=0)
+	text_field = models.TextField(default='')
+	time_field = models.TimeField(default=time(0))
+	url_field = models.URLField(default='http://example.tld/')
+	uuid_field = models.UUIDField(default=uuid.uuid4)

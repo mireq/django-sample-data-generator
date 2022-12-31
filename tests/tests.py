@@ -6,10 +6,12 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
+from .models import Article, Category
 from django_sample_generator import constants
 from django_sample_generator.__main__ import main
+from django_sample_generator.fields import FieldGenerator
 
 
 class TestCommand(TestCase):
@@ -19,7 +21,7 @@ class TestCommand(TestCase):
 	def test_run_command(self):
 		with patch('sys.stdout', new_callable=StringIO):
 			call_command('create_sample_data', verbosity=3)
-			call_command('create_sample_data')
+		call_command('create_sample_data')
 
 
 class TestCommandline(TestCase):
@@ -97,3 +99,17 @@ class TestCommandline(TestCase):
 				main()
 
 		self.assertEqual(1, cm.getvalue().count('\n'))
+
+
+@override_settings(SAMPLE_DATA_GENERATORS=['tests.generators_manually_defined'])
+class TestGenerator(TestCase):
+	def test_not_implemented(self):
+		with self.assertRaises(NotImplementedError):
+			next(iter(FieldGenerator()))
+
+	def test_manually_defined(self):
+		call_command('create_sample_data')
+		self.assertEqual(
+			list(Article.objects.order_by('pk').values_list('category_id', flat=True)),
+			list(Category.objects.order_by('pk').values_list('pk', flat=True)),
+		)
