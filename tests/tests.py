@@ -3,6 +3,7 @@ import shutil
 import sys
 from io import StringIO
 from unittest.mock import patch
+import timeit
 
 from django.conf import settings
 from django.core.management import call_command
@@ -12,6 +13,7 @@ from .models import Article, Category
 from django_sample_generator import constants
 from django_sample_generator.__main__ import main
 from django_sample_generator.fields import FieldGenerator
+from django_sample_generator.text_generator import get_text_generator
 
 
 class TestCommand(TestCase):
@@ -19,9 +21,9 @@ class TestCommand(TestCase):
 		shutil.rmtree(settings.MEDIA_ROOT)
 
 	def test_run_command(self):
+		call_command('create_sample_data')
 		with patch('sys.stdout', new_callable=StringIO):
 			call_command('create_sample_data', verbosity=3)
-		call_command('create_sample_data')
 
 
 class TestCommandline(TestCase):
@@ -113,3 +115,12 @@ class TestGenerator(TestCase):
 			list(Article.objects.order_by('pk').values_list('category_id', flat=True)),
 			list(Category.objects.order_by('pk').values_list('pk', flat=True)),
 		)
+
+
+class TestTextGenerator(TestCase):
+	@classmethod
+	def setUpTestData(cls):
+		cls.gen = get_text_generator()
+
+	def test_long_word(self):
+		self.assertGreaterEqual(len(self.gen.get_word(min_length=30)), 30)
