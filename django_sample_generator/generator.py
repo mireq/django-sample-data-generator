@@ -38,7 +38,9 @@ def field_to_generator(field, opts):
 class ModelGeneratorBase(type):
 	def __new__(cls, name, bases, attrs):
 		new_class = super(ModelGeneratorBase, cls).__new__(cls, name, bases, attrs)
-		opts = getattr(new_class, 'Meta', MetaOpts)
+		opts = getattr(new_class, 'Meta', None)
+		if opts is None:
+			opts = type('Meta', (MetaOpts,), {})
 		opts.model = getattr(opts, 'model', MetaOpts.model)
 		opts.unique_checks = copy(getattr(opts, 'unique_checks', MetaOpts.unique_checks))
 		opts.field_kwargs = copy(getattr(opts, 'field_kwargs', MetaOpts.field_kwargs))
