@@ -43,6 +43,13 @@ class TestCommandline(TestCase):
 					main()
 		self.assertEqual(-1, cm.exception.code)
 
+	def test_wrong_argument(self):
+		with patch.object(sys, 'argv', ['main', '?']):
+			with patch('sys.stdout', new_callable=StringIO):
+				with self.assertRaises(SystemExit) as cm:
+					main()
+		self.assertEqual(-1, cm.exception.code)
+
 	def test_wrong_number(self):
 		with patch.object(sys, 'argv', ['main', 'w', 'x']):
 			with patch('sys.stdout', new_callable=StringIO):
