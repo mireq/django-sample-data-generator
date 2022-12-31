@@ -156,6 +156,18 @@ class SlugFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_slug
 
 
+class WordFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_text_word
+
+
+class NameFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_text_name
+
+
+class SentenceFieldGenerator(FunctionFieldGenerator):
+	function = functions.gen_text_sentence
+
+
 class TextFieldGenerator(FunctionFieldGenerator):
 	function = functions.gen_text_paragraph
 

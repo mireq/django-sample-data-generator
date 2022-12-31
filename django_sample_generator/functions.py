@@ -122,11 +122,14 @@ def gen_text_long(paragraph_count=None, max_length=None):
 
 def gen_fk(queryset, random_data=True):
 	instances = list(queryset)
-	for i in itertools.count():
-		if random_data:
+	if random_data:
+		while True:
 			yield random.choice(instances)
-		else:
+	else:
+		i = 0
+		while True:
 			yield instances[i % len(instances)]
+			i += 1
 
 
 def gen_email():

@@ -8,12 +8,13 @@ from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase, override_settings
 
+from .generators_functions import set_test
 from .models import Article, Category, Foo
 from django_sample_generator import constants
 from django_sample_generator.__main__ import main
 from django_sample_generator.fields import FieldGenerator
+from django_sample_generator.functions import trim_text
 from django_sample_generator.text_generator import get_text_generator
-from .generators_functions import set_test
 
 
 class TestCommand(TestCase):
@@ -132,6 +133,10 @@ class TestFunctions(TestCase):
 	def get_field_values(self):
 		return list(Foo.objects.values_list('field', flat=True))
 
+	def test_trim(self):
+		# don't throw exception on None
+		self.assertIsNone(trim_text(None))
+
 	def test_blank(self):
 		set_test('blank')
 		call_command('create_sample_data')
@@ -146,3 +151,9 @@ class TestFunctions(TestCase):
 		set_test('seq')
 		call_command('create_sample_data')
 		self.assertEqual(['10', '15'], self.get_field_values())
+
+	def test_text(self):
+		set_test('text')
+		call_command('create_sample_data')
+		# trimmed to 1 character
+		self.assertEqual(1, len(self.get_field_values()[0]))
