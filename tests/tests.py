@@ -128,7 +128,15 @@ class TestTextGenerator(TestCase):
 
 @override_settings(SAMPLE_DATA_GENERATORS=['tests.generators_functions'])
 class TestFunctions(TestCase):
+	def get_field_values(self):
+		return list(Foo.objects.values_list('field', flat=True))
+
 	def test_blank(self):
 		set_test('blank')
 		call_command('create_sample_data')
-		self.assertEqual([''], list(Foo.objects.values_list('field', flat=True)))
+		self.assertEqual([''], self.get_field_values())
+
+	def test_seq(self):
+		set_test('seq')
+		call_command('create_sample_data')
+		self.assertEqual(['10', '15'], self.get_field_values())

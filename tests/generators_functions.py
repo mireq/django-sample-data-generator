@@ -10,9 +10,17 @@ class BlankTextGenerator(generator.ModelGenerator):
 		model = Foo
 
 
+class SeqIntegerGenerator(generator.ModelGenerator):
+	field = fields.SeqIntegerFieldGenerator(start=10, step=5)
+
+	class Meta:
+		model = Foo
+
+
 generators = []
 test_generators = {
 	'blank': [BlankTextGenerator(1)],
+	'seq': [SeqIntegerGenerator(2)],
 }
 
 
