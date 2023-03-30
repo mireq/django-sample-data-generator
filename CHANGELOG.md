@@ -1,3 +1,9 @@
+## 1.0.3 (2023-03-30)
+
+### Feat
+
+- Allow modify instance before unique checks
+
 ## 1.0.2 (2023-03-30)
 
 ### Fix
