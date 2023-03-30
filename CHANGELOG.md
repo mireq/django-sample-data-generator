@@ -1,3 +1,9 @@
+## 1.0.2 (2023-03-30)
+
+### Fix
+
+- Fixed wrog word separator
+
 ## 1.0.1 (2022-12-31)
 
 ### Feat
