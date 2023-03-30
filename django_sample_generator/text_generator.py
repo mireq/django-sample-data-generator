@@ -44,6 +44,7 @@ class TextGenerator(object):
 		word = self.__generate_word(min_length=min_length)
 		if not include_stops and word[-1:] in SPECIAL_TOKENS:
 			word = word[:-1]
+		word = word.replace('\0', ' ')
 		if uppercase:
 			word = word.title()
 		return word
