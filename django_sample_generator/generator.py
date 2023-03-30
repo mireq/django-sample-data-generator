@@ -91,8 +91,11 @@ class ModelGenerator(object, metaclass=ModelGeneratorBase):
 	def get_count(self):
 		return self.count
 
+	def build_instance(self):
+		return self.model()
+
 	def get_object(self):
-		obj = self.model()
+		obj = self.build_instance()
 		for name, generator in self._meta.generators.items():
 			setattr(obj, name, next(generator))
 		errors = set()
