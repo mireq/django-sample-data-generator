@@ -1,3 +1,9 @@
+## 1.0.4 (2023-04-29)
+
+### Fix
+
+- Unique check should be list
+
 ## 1.0.3 (2023-03-30)
 
 ### Feat
