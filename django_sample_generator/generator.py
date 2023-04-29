@@ -42,7 +42,7 @@ class ModelGeneratorBase(type):
 		if opts is None:
 			opts = type('Meta', (MetaOpts,), {})
 		opts.model = getattr(opts, 'model', MetaOpts.model)
-		opts.unique_checks = copy(getattr(opts, 'unique_checks', MetaOpts.unique_checks))
+		opts.unique_checks = list(getattr(opts, 'unique_checks', MetaOpts.unique_checks))
 		opts.field_kwargs = copy(getattr(opts, 'field_kwargs', MetaOpts.field_kwargs))
 		opts.fields = copy(getattr(opts, 'fields', MetaOpts.fields))
 		opts.exclude = copy(getattr(opts, 'exclude', MetaOpts.exclude))
