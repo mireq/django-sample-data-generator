@@ -4,11 +4,11 @@ import os
 import random
 import string
 import time
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 
 from django.conf import settings
 from django.core.files.base import ContentFile
-from django.utils.timezone import datetime as tz_datetime, utc, now
+from django.utils.timezone import datetime as tz_datetime, now
 
 from .text_generator import get_text_generator
 
@@ -63,7 +63,7 @@ def gen_datetime(min_date=now_add_days(-365), max_date=now_add_days(0)):
 	while True:
 		random_time = min_date + random.random() * (max_date - min_date)
 		if settings.USE_TZ:
-			yield tz_datetime.fromtimestamp(time.mktime(time.localtime(random_time))).replace(tzinfo=utc)
+			yield tz_datetime.fromtimestamp(time.mktime(time.localtime(random_time))).replace(tzinfo=timezone.utc)
 		else:
 			yield tz_datetime.fromtimestamp(time.mktime(time.localtime(random_time)))
 
